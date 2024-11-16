@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 
 export const Background = styled.div`
-  background: #e5e5e5;
+  background: #ffffff;
   height: 100vh;
   display: flex;
   justify-content: center;
