@@ -1,16 +1,42 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Helper function to get credentials from localStorage
+const getStoredCredentials = () => {
+  const credentials = localStorage.getItem("auth");
+  return credentials ? JSON.parse(credentials) : null;
+};
+
+const storedCredentials = getStoredCredentials();
+const isAuthenticated =
+  storedCredentials && storedCredentials.access ? true : false;
+
 const authSlice = createSlice({
   name: "auth",
-  initialState: { user: null, isAuthenticated: false },
+  initialState: {
+    access: storedCredentials?.access || null,
+    refresh: storedCredentials?.refresh || null,
+    user: storedCredentials?.user || null,
+    isAuthenticated: isAuthenticated,
+  },
   reducers: {
     setCredentials: (state, action) => {
-      state.user = action.payload.user;
-      state.isAuthenticated = true;
+      const { access, refresh, user } = action.payload;
+      state.access = access;
+      state.refresh = refresh;
+      state.user = user;
+      state.isAuthenticated = !!access;
+
+      // Persist credentials in localStorage
+      localStorage.setItem("auth", JSON.stringify(action.payload));
     },
     logout: (state) => {
+      state.access = null;
+      state.refresh = null;
       state.user = null;
       state.isAuthenticated = false;
+
+      // Remove credentials from localStorage
+      localStorage.removeItem("auth");
     },
   },
 });
