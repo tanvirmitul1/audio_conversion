@@ -1,10 +1,15 @@
 import styled from "styled-components";
 
 export const SidebarContainer = styled.aside`
-  width: 200px;
-  background-color: #f4f4f4;
-  padding: 10px;
-  height: calc(100vh - 120px);
+  position: absolute;
+  top: 0;
+  left: ${({ visible }) => (visible ? "0" : "-200px")};
+  height: 100vh;
+  width: ${({ width }) => width};
+  transition: left 0.3s ease;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const SidebarItem = styled.a`

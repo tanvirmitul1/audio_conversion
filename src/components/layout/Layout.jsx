@@ -1,18 +1,35 @@
 /* eslint-disable react/prop-types */
 import Navbar from "./Navbar";
-
-import LeftSidebar from "./LeftSidebar";
-
 import Footer from "./Footer";
 import styled from "styled-components";
+import { useState } from "react";
+import LeftSidebar from "./LeftSidebar";
 
 const Layout = ({ children }) => {
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const sidebarWidth = "200px"; // Define the sidebar width
+
+  const toggleSidebar = () => {
+    setIsSidebarVisible((prev) => !prev);
+  };
+
   return (
     <LayoutWrapper>
-      <Navbar />
+      <NavbarWrapper>
+        <Navbar toggleSidebar={toggleSidebar} />
+      </NavbarWrapper>
       <LayoutContent>
-        <LeftSidebar />
-        <MainContent>{children}</MainContent>
+        <LeftSidebar
+          visible={isSidebarVisible}
+          width={sidebarWidth}
+          toggleSidebar={toggleSidebar}
+        />
+        <MainContent
+          sidebarVisible={isSidebarVisible}
+          sidebarWidth={sidebarWidth}
+        >
+          {children}
+        </MainContent>
       </LayoutContent>
       <Footer />
     </LayoutWrapper>
@@ -21,22 +38,30 @@ const Layout = ({ children }) => {
 
 export default Layout;
 
-export const LayoutWrapper = styled.div`
+// Styled Components
+const LayoutWrapper = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Defining overall layout height here */
+  height: 100vh;
 `;
 
-export const LayoutContent = styled.div`
+const NavbarWrapper = styled.div``;
+
+const LayoutContent = styled.div`
   display: flex;
   flex: 1;
-  overflow: hidden; /* Ensuring content doesn't overflow */
+  position: relative;
 `;
 
-export const MainContent = styled.main`
+const MainContent = styled.main`
   flex: 1;
   padding: 20px;
   background-color: #f9f9f9;
-  overflow-y: auto; /* Main content should scroll if needed */
-  width: calc(100vw - 200px);
+  overflow-y: auto;
+  width: ${({ sidebarVisible, sidebarWidth }) =>
+    sidebarVisible ? `calc(100vw - ${sidebarWidth})` : "100vw"};
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  margin-left: ${({ sidebarVisible, sidebarWidth }) =>
+    sidebarVisible ? sidebarWidth : "0"};
 `;

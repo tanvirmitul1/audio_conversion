@@ -131,7 +131,7 @@ const Register = () => {
     <Background>
       <AuthIcon width="60%" height="60%" />
       <AuthContainer>
-        <Flex justifyContent="space-between">
+        <Flex justifyContent="space-between" margin="50px 0px 0px 0px">
           <MdGTranslate color="#0E99FF" size={50} />
           <Flex>
             <Title align={"left"}>Create an Account on</Title>
@@ -208,7 +208,7 @@ const Register = () => {
                 Mobile Number <span style={{ color: "red" }}>*</span>
               </label>
               <PhoneInput
-                country={"us"} // Default country
+                country={"bd"} // Default country
                 value={userDetails.mobile_number}
                 onChange={handlePhoneChange}
                 inputProps={{

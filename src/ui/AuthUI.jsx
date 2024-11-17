@@ -123,7 +123,7 @@ export const AuthLink = styled(Link)`
   font-size: 14px;
   color: #6e7f80;
   text-decoration: none;
-
+  margin-top: 10px;
   font-weight: 500;
 
   &:hover {

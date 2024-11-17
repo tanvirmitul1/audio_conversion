@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
-
-import Login from "./components/Pages/Login";
-import Register from "./components/Pages/Register";
-import Dashboard from "./components/Pages/Dashboard";
 import AdminPage from "./components/Pages/AdminPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import GlobalStyle from "./ui/GlobalStyle";
 import { store } from "./redux/store";
 import Layout from "./components/layout/Layout";
+import Setting from "./components/pages/Setting";
+import Login from "./components/pages/Login";
+import Register from "./components/pages/Register";
+import Transcribe from "./components/pages/Transcribe";
 
 function App() {
   return (
@@ -27,7 +27,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <Dashboard />
+                  <Transcribe />
                 </Layout>
               </ProtectedRoute>
             }
@@ -38,6 +38,16 @@ function App() {
               <AdminRoute>
                 <Layout>
                   <AdminPage />
+                </Layout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <AdminRoute>
+                <Layout>
+                  <Setting />
                 </Layout>
               </AdminRoute>
             }

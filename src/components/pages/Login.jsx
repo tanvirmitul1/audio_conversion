@@ -21,15 +21,31 @@ import AuthIcon from "../auth/AuthIcon";
 import { FaKey } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
 import { MdGTranslate } from "react-icons/md";
+import Swal from "sweetalert2";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../redux/features/authSlice";
+import { jwtDecode } from "jwt-decode";
+import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const dispatch = useDispatch();
+  const [credentialsData, setCredentialsData] = useState({
+    email: "",
+    password: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
 
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  console.log({ isAuthenticated });
+  // Ensure that isAuthenticated is correctly read from the Redux state
+  if (isAuthenticated) {
+    return <Navigate to="/" />;
+  }
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!email) return "Email is required.";
@@ -46,29 +62,42 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const emailValidationError = validateEmail(credentials.email);
-    const passwordValidationError = validatePassword(credentials.password);
+    const emailValidationError = validateEmail(credentialsData.email);
+    const passwordValidationError = validatePassword(credentialsData.password);
 
     setEmailError(emailValidationError);
     setPasswordError(passwordValidationError);
 
     if (emailValidationError || passwordValidationError) {
-      setError("");
       return;
     }
 
     try {
-      await login(credentials).unwrap();
-      navigate("/");
+      const response = await login(credentialsData).unwrap();
+      if (response) {
+        const { access, refresh } = response;
+        const decodedUser = jwtDecode(access);
+        console.log({ decodedUser });
+        dispatch(setCredentials({ access, refresh, user: decodedUser }));
+
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Login successful",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        navigate("/");
+      }
     } catch (err) {
       console.error("Failed to log in", err);
-      setError("Failed to log in. Please check your credentials.");
+      Swal.fire("Error", "Failed to log in. Please try again.", "error");
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCredentials((prev) => ({ ...prev, [name]: value }));
+    setCredentialsData((prev) => ({ ...prev, [name]: value }));
 
     if (name === "email") {
       setEmailError("");
@@ -99,7 +128,7 @@ const Login = () => {
                 type="email"
                 name="email"
                 placeholder="Enter your email"
-                value={credentials.email}
+                value={credentialsData.email}
                 onChange={handleInputChange}
               />
               <div
@@ -119,7 +148,7 @@ const Login = () => {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Enter your password"
-                value={credentials.password}
+                value={credentialsData.password}
                 onChange={handleInputChange}
               />
               <EyeButton onClick={() => setShowPassword(!showPassword)}>
@@ -146,7 +175,6 @@ const Login = () => {
               Sign in
             </Button>
           </Flex>
-          <ErrorMessage show={!!error}>{error}</ErrorMessage>
 
           <AuthLink to="/register">Don't have an account? Register</AuthLink>
         </AuthForm>
