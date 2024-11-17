@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
-import AdminPage from "./components/Pages/AdminPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import GlobalStyle from "./ui/GlobalStyle";
@@ -10,6 +9,7 @@ import Setting from "./components/pages/Setting";
 import Login from "./components/pages/Login";
 import Register from "./components/pages/Register";
 import Transcribe from "./components/pages/Transcribe";
+import AdminPage from "./components/Pages/AdminPage";
 
 function App() {
   return (

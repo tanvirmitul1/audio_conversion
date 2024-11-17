@@ -101,7 +101,7 @@ const Transcribe = () => {
   return (
     <Container colors={colors}>
       <Header colors={colors}>
-        <h1>Audio Transcription Tool</h1>
+        <h1>Audio Transcription Tool </h1>
       </Header>
       <Flex
         gap="20px"

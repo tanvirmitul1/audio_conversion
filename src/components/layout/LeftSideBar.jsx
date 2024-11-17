@@ -4,6 +4,10 @@ import styled from "styled-components";
 import { MdGTranslate } from "react-icons/md";
 import useColors from "../../hooks/useColors";
 import { LiaArrowsAltHSolid } from "react-icons/lia";
+import { IoMdSettings } from "react-icons/io";
+import { FaClipboardList } from "react-icons/fa";
+import { FaMicrophone } from "react-icons/fa";
+
 const LeftSidebar = ({ visible, width, toggleSidebar }) => {
   const colors = useColors();
   const location = useLocation();
@@ -26,7 +30,7 @@ const LeftSidebar = ({ visible, width, toggleSidebar }) => {
             colors={colors}
             className={isActive("/") ? "active" : ""}
           >
-            Transcribe
+            <FaMicrophone /> Transcribe
           </StyledLink>
         </SidebarItem>
         <SidebarItem>
@@ -35,7 +39,7 @@ const LeftSidebar = ({ visible, width, toggleSidebar }) => {
             colors={colors}
             className={isActive("/admin") ? "active" : ""}
           >
-            Document
+            <FaClipboardList /> Documents
           </StyledLink>
         </SidebarItem>
         <SidebarItem>
@@ -44,7 +48,7 @@ const LeftSidebar = ({ visible, width, toggleSidebar }) => {
             colors={colors}
             className={isActive("/settings") ? "active" : ""}
           >
-            Setting
+            <IoMdSettings /> Settings
           </StyledLink>
         </SidebarItem>
       </Nav>
@@ -72,6 +76,7 @@ const SidebarContainer = styled.aside`
 
 const Header = styled.div`
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 5px;
   padding: 10px 15px;
@@ -101,14 +106,14 @@ const Nav = styled.nav`
 `;
 
 const SidebarItem = styled.div`
-  margin: 10px 0;
+  margin: 5px 0;
 `;
 
 const StyledLink = styled(Link)`
   text-decoration: none;
   color: ${({ colors }) => colors?.text};
-  font-size: 16px;
-  padding: 10px 15px;
+  font-size: 14px;
+  padding: 8px 15px;
   border-radius: 5px;
   display: block;
 

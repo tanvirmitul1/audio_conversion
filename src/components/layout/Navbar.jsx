@@ -29,12 +29,13 @@ const Navbar = ({ toggleSidebar }) => {
     <NavbarContainer colors={colors}>
       <LeftContainer>
         <MdMenu
-          size={30}
+          color={colors?.primary}
+          size={18}
           style={{ cursor: "pointer" }}
           onClick={toggleSidebar}
         />
         <NavbarTitle colors={colors}>
-          <MdGTranslate size={20} /> বাংলাস্ক্রাইব
+          <MdGTranslate size={15} /> বাংলাস্ক্রাইব
         </NavbarTitle>
       </LeftContainer>
       <RightContainer>
@@ -78,7 +79,7 @@ const NavbarContainer = styled.nav`
 
 const NavbarTitle = styled.h1`
   color: ${({ colors }) => colors?.primary};
-  font-size: 18px;
+  font-size: 14px;
   margin: 0;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 `;
