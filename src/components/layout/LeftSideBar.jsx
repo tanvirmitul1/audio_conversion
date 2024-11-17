@@ -8,7 +8,7 @@ import { IoMdSettings } from "react-icons/io";
 import { FaClipboardList } from "react-icons/fa";
 import { FaMicrophone } from "react-icons/fa";
 
-const LeftSidebar = ({ visible, width, toggleSidebar }) => {
+const LeftSideBar = ({ visible, width, toggleSidebar }) => {
   const colors = useColors();
   const location = useLocation();
 
@@ -56,7 +56,7 @@ const LeftSidebar = ({ visible, width, toggleSidebar }) => {
   );
 };
 
-export default LeftSidebar;
+export default LeftSideBar;
 
 // Styled Components
 const SidebarContainer = styled.aside`

@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import styled from "styled-components";
 import { useState } from "react";
-import LeftSidebar from "./LeftSidebar";
+import LeftSideBar from "./LeftSideBar";
 
 const Layout = ({ children }) => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
@@ -19,7 +19,7 @@ const Layout = ({ children }) => {
         <Navbar toggleSidebar={toggleSidebar} />
       </NavbarWrapper>
       <LayoutContent>
-        <LeftSidebar
+        <LeftSideBar
           visible={isSidebarVisible}
           width={sidebarWidth}
           toggleSidebar={toggleSidebar}
