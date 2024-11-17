@@ -9,7 +9,7 @@ import Setting from "./components/pages/Setting";
 import Login from "./components/pages/Login";
 import Register from "./components/pages/Register";
 import Transcribe from "./components/pages/Transcribe";
-import AdminPage from "./components/Pages/AdminPage";
+import AdminPage from "./components/pages/AdminPage";
 
 function App() {
   return (
