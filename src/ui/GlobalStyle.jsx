@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import styled, { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -50,20 +51,49 @@ const GlobalStyle = createGlobalStyle`
 
 export default GlobalStyle;
 
-export const Flex = styled.div`
-  position: relative;
-  display: flex;
-  justify-content: ${({ justifyContent }) => justifyContent || "center"};
-  align-items: ${({ alignItems }) => alignItems || "center"};
-  flex-direction: ${({ direction }) => direction || "row"};
-  flex-wrap: ${({ wrap }) => wrap || "nowrap"};
-  gap: ${({ gap }) => gap || "10px"};
-  padding: ${({ padding }) => padding || "0"};
-  margin: ${({ margin }) => margin || "0"};
-  width: ${({ width }) => width || "100%"};
-  height: ${({ height }) => height || "auto"};
-  background-color: ${({ backgroundColor }) =>
-    backgroundColor || "transparent"};
-  border: ${({ border }) => border || "none"};
-  border-radius: ${({ borderRadius }) => borderRadius || "0"};
+export const Flex = ({
+  justifyContent,
+  alignItems,
+  direction,
+  wrap,
+  gap,
+  padding,
+  margin,
+  width,
+  height,
+  backgroundColor,
+  border,
+  borderRadius,
+  ...rest
+}) => {
+  return (
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        justifyContent: justifyContent || "center",
+        alignItems: alignItems || "center",
+        flexDirection: direction || "row",
+        flexWrap: wrap || "nowrap",
+        gap: gap || "10px",
+        padding: padding || "0",
+        margin: margin || "0",
+        width: width || "100%",
+        height: height || "auto",
+        backgroundColor: backgroundColor || "transparent",
+        border: border || "none",
+        borderRadius: borderRadius || "0",
+      }}
+      {...rest} // Pass remaining props to the DOM
+    >
+      {/* Child components */}
+    </div>
+  );
+};
+
+export const AvatarIcon = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
 `;
