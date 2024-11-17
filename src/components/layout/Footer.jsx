@@ -31,7 +31,6 @@ const FooterContainer = styled.footer`
   color: ${({ colors }) => colors?.text};
   text-align: center;
   height: 40px;
-  transition: background-color 0.3s ease, color 0.3s ease;
 `;
 
 const SocialIcons = styled.div`

@@ -103,7 +103,12 @@ const Transcribe = () => {
       <Header colors={colors}>
         <h1>Audio Transcription Tool</h1>
       </Header>
-      <Flex gap="20px" alignItems={"flex-start"} justifyContent={"flex-start"}>
+      <Flex
+        gap="20px"
+        alignItems={"flex-start"}
+        justifyContent={"flex-start"}
+        width={"50%"}
+      >
         <RecordingSection
           isRecording={isRecording}
           startRecording={startRecording}
@@ -129,21 +134,21 @@ const Transcribe = () => {
 
 const Container = styled.div`
   padding: 20px;
-  background: ${(colors) => colors?.background};
-  color: ${(colors) => colors?.text};
+  background: ${({ colors }) => colors?.background};
+  color: ${({ colors }) => colors?.text};
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: flex-start;
+  align-items: stretch;
+  height: 100%;
 `;
 
 const Header = styled.header`
-  text-align: center;
   margin-bottom: 20px;
 
   h1 {
     font-size: 24px;
-    color: ${(colors) => colors?.primary};
+    color: ${({ colors }) => colors?.primary};
   }
 `;
 
