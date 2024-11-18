@@ -9,7 +9,7 @@ import Setting from "./components/pages/Setting";
 import Login from "./components/pages/Login";
 import Register from "./components/pages/Register";
 import Transcribe from "./components/pages/Transcribe";
-import AdminPage from "./components/pages/AdminPage";
+import Documents from "./components/pages/Documents";
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
             element={
               <AdminRoute>
                 <Layout>
-                  <AdminPage />
+                  <Documents />
                 </Layout>
               </AdminRoute>
             }
