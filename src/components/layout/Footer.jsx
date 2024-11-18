@@ -8,17 +8,15 @@ const Footer = () => {
 
   return (
     <FooterContainer colors={colors}>
-      <SocialIcons>
-        <Icon href="https://github.com" target="_blank">
-          <FaGithub size={20} />
-        </Icon>
-        <Icon href="https://linkedin.com" target="_blank">
-          <FaLinkedin size={20} />
-        </Icon>
-        <Icon href="https://twitter.com" target="_blank">
-          <FaTwitter size={20} />
-        </Icon>
-      </SocialIcons>
+      <Icon href="https://github.com" target="_blank">
+        <FaGithub size={15} />
+      </Icon>
+      <Icon href="https://linkedin.com" target="_blank">
+        <FaLinkedin size={15} />
+      </Icon>
+      <Icon href="https://twitter.com" target="_blank">
+        <FaTwitter size={15} />
+      </Icon>
     </FooterContainer>
   );
 };
@@ -31,13 +29,9 @@ const FooterContainer = styled.footer`
   color: ${({ colors }) => colors?.text};
   text-align: center;
   height: 40px;
-`;
-
-const SocialIcons = styled.div`
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 10px;
+  align-items: center;
+  justify-content: space-around;
 `;
 
 const Icon = styled.a`

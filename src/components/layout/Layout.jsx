@@ -84,5 +84,5 @@ const MainContent = styled.main`
   transition: margin-left 0.3s ease, width 0.3s ease;
   margin-left: ${({ sidebarVisible, sidebarWidth }) =>
     sidebarVisible ? sidebarWidth : "0"};
-  height: calc(100vh - 80px);
+  max-height: calc(100vh - 80px);
 `;

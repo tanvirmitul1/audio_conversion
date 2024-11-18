@@ -141,9 +141,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: stretch;
-  height: 100%;
-  gap: 20px;
 `;
 const RecordContainer = styled.div`
   display: flex;

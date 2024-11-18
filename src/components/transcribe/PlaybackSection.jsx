@@ -3,6 +3,7 @@
 import React from "react";
 import styled from "styled-components";
 import { FaPlay, FaPause, FaVolumeUp } from "react-icons/fa";
+import useColors from "../../hooks/useColors";
 
 const PlaybackSection = ({
   audioRef,
@@ -15,9 +16,11 @@ const PlaybackSection = ({
   handleVolumeChange,
   handleTimeUpdate,
 }) => {
+  const colors = useColors();
+
   return (
-    <Card>
-      <h3>Playback Controls</h3>
+    <Card colors={colors}>
+      <h3 style={{ color: colors.text }}>Playback Controls</h3>
       <AudioPlayer>
         <audio
           ref={audioRef}
@@ -25,15 +28,15 @@ const PlaybackSection = ({
           onTimeUpdate={handleTimeUpdate}
           onEnded={() => togglePlayback(false)}
         />
-        <ProgressContainer onClick={handleProgressClick}>
-          <ProgressBar style={{ width: `${progress}%` }} />
+        <ProgressContainer colors={colors} onClick={handleProgressClick}>
+          <ProgressBar colors={colors} style={{ width: `${progress}%` }} />
         </ProgressContainer>
         <PlaybackControls>
-          <ControlButton onClick={togglePlayback}>
+          <ControlButton colors={colors} onClick={togglePlayback}>
             {isPlaying ? <FaPause /> : <FaPlay />}
           </ControlButton>
-          <VolumeControl>
-            <FaVolumeUp />
+          <VolumeControl colors={colors}>
+            <FaVolumeUp style={{ color: colors.text }} />
             <input
               type="range"
               min="0"
@@ -50,10 +53,10 @@ const PlaybackSection = ({
 };
 
 const Card = styled.div`
-  background: #fff;
+  background: ${({ colors }) => colors?.background};
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px ${({ colors }) => colors?.shadow};
   margin-bottom: 20px;
   width: 50%;
   @media (max-width: 768px) {
@@ -69,7 +72,7 @@ const AudioPlayer = styled.div`
 
 const ProgressContainer = styled.div`
   height: 8px;
-  background: #ddd;
+  background: ${({ colors }) => colors?.border};
   border-radius: 5px;
   position: relative;
   cursor: pointer;
@@ -77,7 +80,7 @@ const ProgressContainer = styled.div`
 
 const ProgressBar = styled.div`
   height: 100%;
-  background: #007bff;
+  background: ${({ colors }) => colors?.primary};
   border-radius: 5px;
 `;
 
@@ -88,15 +91,16 @@ const PlaybackControls = styled.div`
 `;
 
 const ControlButton = styled.button`
-  background: #007bff;
-  color: #fff;
+  background: ${({ colors }) => colors?.primary};
+  color: ${({ colors }) => colors?.text};
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
   cursor: pointer;
 
   &:hover {
-    background: #0056b3;
+    background: ${({ colors }) =>
+      colors?.mode === "dark" ? "#7a33cc" : "#0056b3"};
   }
 `;
 

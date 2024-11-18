@@ -54,6 +54,7 @@ const NavbarContainer = styled.nav`
   background-color: ${({ colors }) => colors?.background};
   box-shadow: 0px 4px 8px ${({ colors }) => colors?.shadow};
   border: 1px solid ${({ colors }) => colors?.border};
+  height: 50px;
 `;
 
 const NavbarTitle = styled.h1`
