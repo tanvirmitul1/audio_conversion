@@ -6,6 +6,7 @@ import { useState } from "react";
 import UserPopover from "../auth/UserPopover";
 import useColors from "../../hooks/useColors";
 import { AvatarIcon } from "../../ui/GlobalStyle";
+import { IoIosArrowDroprightCircle } from "react-icons/io";
 
 const Navbar = ({ toggleSidebar }) => {
   const [popoverVisible, setPopoverVisible] = useState(false);
@@ -18,12 +19,13 @@ const Navbar = ({ toggleSidebar }) => {
   return (
     <NavbarContainer colors={colors}>
       <LeftContainer>
-        <MdMenu
+        <IoIosArrowDroprightCircle
           color={colors?.primary}
           size={18}
           style={{ cursor: "pointer" }}
           onClick={toggleSidebar}
         />
+
         <NavbarTitle colors={colors}>
           <MdGTranslate size={15} /> বাংলাস্ক্রাইব
         </NavbarTitle>
