@@ -15,18 +15,38 @@ const PlaybackSection = ({
   volume,
   handleVolumeChange,
   handleTimeUpdate,
+  audioMetadata,
+  handleAudioMetadataLoad,
 }) => {
   const colors = useColors();
+  const formatDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60)
+      .toString()
+      .padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
 
   return (
     <Card colors={colors}>
       <h3 style={{ color: colors.text }}>Playback Controls</h3>
+      {audioMetadata.name && (
+        <FileInfo colors={colors}>
+          <p>
+            File: <strong>{audioMetadata.name}</strong>
+          </p>
+          {audioMetadata.duration > 0 && (
+            <p>Duration: {formatDuration(audioMetadata.duration)}</p>
+          )}
+        </FileInfo>
+      )}
       <AudioPlayer>
         <audio
           ref={audioRef}
           src={audioURL}
           onTimeUpdate={handleTimeUpdate}
           onEnded={() => togglePlayback(false)}
+          onLoadedMetadata={handleAudioMetadataLoad}
         />
         <ProgressContainer colors={colors} onClick={handleProgressClick}>
           <ProgressBar colors={colors} style={{ width: `${progress}%` }} />
@@ -61,6 +81,19 @@ const Card = styled.div`
   width: 50%;
   @media (max-width: 768px) {
     width: 100%;
+  }
+`;
+const FileInfo = styled.div`
+  margin-bottom: 10px;
+  color: ${({ colors }) => colors.text};
+
+  p {
+    margin: 0;
+    font-size: 14px;
+
+    strong {
+      color: ${({ colors }) => colors.primary};
+    }
   }
 `;
 

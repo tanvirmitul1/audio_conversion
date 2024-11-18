@@ -9,7 +9,12 @@ import { FaRegCirclePause } from "react-icons/fa6";
 import { IoPlayCircleOutline } from "react-icons/io5";
 import { Flex } from "../../ui/GlobalStyle";
 
-const RecordingSection = ({ isRecording, startRecording, stopRecording }) => {
+const RecordingSection = ({
+  isRecording,
+  startRecording,
+  stopRecording,
+  recordingTime,
+}) => {
   const colors = useColors();
 
   return (
@@ -22,8 +27,20 @@ const RecordingSection = ({ isRecording, startRecording, stopRecording }) => {
             onClick={startRecording}
             recording={isRecording}
           >
-            <FaMicrophone color={isRecording ? "red" : colors?.primary} />
-            {isRecording ? "Recording" : "Record"}
+            <Flex direction={"column"} style={{ position: "relative" }}>
+              <Flex>
+                <FaMicrophone color={isRecording ? "red" : colors?.primary} />
+                {isRecording ? "Recording" : "Record"}
+              </Flex>
+
+              <div style={{ position: "absolute", top: "10px", left: "40px" }}>
+                {isRecording && (
+                  <p style={{ marginTop: "10px", color: "red" }}>
+                    {recordingTime}
+                  </p>
+                )}
+              </div>
+            </Flex>
           </ControlButton>
 
           <ControlButton colors={colors} onClick={stopRecording}>
