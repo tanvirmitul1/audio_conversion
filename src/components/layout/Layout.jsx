@@ -65,6 +65,7 @@ const LayoutWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow: hidden;
 `;
 
 const NavbarWrapper = styled.div``;
@@ -83,4 +84,5 @@ const MainContent = styled.main`
   transition: margin-left 0.3s ease, width 0.3s ease;
   margin-left: ${({ sidebarVisible, sidebarWidth }) =>
     sidebarVisible ? sidebarWidth : "0"};
+  height: calc(100vh - 80px);
 `;

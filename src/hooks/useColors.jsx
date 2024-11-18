@@ -3,8 +3,6 @@ import { useSelector } from "react-redux";
 const useColors = () => {
   const mode = useSelector((state) => state.colorMode?.mode);
 
-  console.log("Current mode:", mode);
-
   const colors = {
     light: {
       background: "#ffffff",
@@ -13,6 +11,7 @@ const useColors = () => {
       border: "#ddd",
       shadow: "rgba(0, 0, 0, 0.1)",
       sidebarBg: "#F9F9F9",
+      secondaryText: "#6c757d",
     },
     dark: {
       background: "#121212",
@@ -21,10 +20,9 @@ const useColors = () => {
       border: "#333",
       shadow: "rgba(255, 255, 255, 0.1)",
       sidebarBg: "#0E1420",
+      secondaryText: "#a6a6a6",
     },
   };
-
-  console.log("Colors object:", colors[mode]);
 
   return colors[mode] || colors.light; // Fallback to light mode colors if mode is undefined
 };

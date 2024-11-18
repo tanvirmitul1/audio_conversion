@@ -41,7 +41,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  console.log({ isAuthenticated });
+
   // Ensure that isAuthenticated is correctly read from the Redux state
   if (isAuthenticated) {
     return <Navigate to="/" />;
@@ -77,7 +77,7 @@ const Login = () => {
       if (response) {
         const { access, refresh } = response;
         const decodedUser = jwtDecode(access);
-        console.log({ decodedUser });
+
         dispatch(setCredentials({ access, refresh, user: decodedUser }));
 
         Swal.fire({

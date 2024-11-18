@@ -1,21 +1,45 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 
 import styled from "styled-components";
 import { FaMicrophone, FaStop } from "react-icons/fa";
+import useColors from "../../hooks/useColors";
+import { BsSoundwave } from "react-icons/bs";
+import { FaRegCirclePause } from "react-icons/fa6";
+import { IoPlayCircleOutline } from "react-icons/io5";
+import { Flex } from "../../ui/GlobalStyle";
 
 const RecordingSection = ({ isRecording, startRecording, stopRecording }) => {
+  const colors = useColors();
+
   return (
-    <Card>
-      <h3>Record Audio</h3>
-      <RecordingControls>
-        {!isRecording ? (
-          <ControlButton onClick={startRecording}>
-            <FaMicrophone /> Start Recording
+    <Card colors={colors}>
+      <h3 style={{ color: colors?.text, marginBottom: "10px" }}>Live Record</h3>
+      <RecordingControls colors={colors}>
+        <Flex justifyContent={"space-between"} alignItems={"center"}>
+          <ControlButton
+            colors={colors}
+            onClick={startRecording}
+            recording={isRecording}
+          >
+            <FaMicrophone color={isRecording ? "red" : colors?.primary} />
+            {isRecording ? "Recording" : "Record"}
           </ControlButton>
+
+          <ControlButton colors={colors} onClick={stopRecording}>
+            <FaStop color={colors?.primary} />
+            {isRecording ? "Stop" : null}
+          </ControlButton>
+        </Flex>
+        <WaveIcon size={100} color={colors?.primary} />
+        {isRecording ? (
+          <ControlIcon size={30} color={colors?.primary}>
+            <FaRegCirclePause />
+          </ControlIcon>
         ) : (
-          <ControlButton onClick={stopRecording}>
-            <FaStop /> Stop Recording
-          </ControlButton>
+          <ControlIcon size={30} color={colors?.primary}>
+            <IoPlayCircleOutline />
+          </ControlIcon>
         )}
       </RecordingControls>
     </Card>
@@ -23,31 +47,88 @@ const RecordingSection = ({ isRecording, startRecording, stopRecording }) => {
 };
 
 const Card = styled.div`
-  background: #fff;
-  padding: 20px;
+  background: ${({ colors }) => colors?.background};
+  color: ${({ colors }) => colors?.text};
+  padding: 10px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px ${({ colors }) => colors?.shadow};
   margin-bottom: 20px;
+  width: 50%;
+  height: 100%;
+  border: 1px solid ${({ colors }) => colors?.border};
+
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 15px;
+  }
+
+  @media (min-width: 1400px) {
+    width: 40%;
+    height: 100%;
+  }
 `;
 
 const RecordingControls = styled.div`
   text-align: center;
+  width: 100%;
+  max-height: 100%;
+  border: 1px solid ${({ colors }) => colors?.border};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+
+  @media (min-width: 1400px) {
+    padding: 20px;
+    max-height: 100%;
+  }
 `;
 
-const ControlButton = styled.button`
+const ControlButton = styled.span`
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
-  font-size: 14px;
-  background: #007bff;
-  color: #fff;
+  gap: 5px;
+  padding: 10px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 0.9rem;
 
-  &:hover {
-    background: #0056b3;
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+
+  @media (min-width: 1200px) {
+    font-size: 1rem;
+    padding: 12px;
+  }
+`;
+
+const WaveIcon = styled(BsSoundwave)`
+  margin: 20px 0;
+
+  @media (max-width: 768px) {
+    margin: 15px 0;
+    size: 80;
+  }
+
+  @media (min-width: 1200px) {
+    margin: 25px 0;
+    size: 120;
+  }
+`;
+
+const ControlIcon = styled.div`
+  font-size: ${({ size }) => size}px;
+
+  @media (max-width: 768px) {
+    font-size: ${({ size }) => size - 5}px;
+  }
+
+  @media (min-width: 1200px) {
+    font-size: ${({ size }) => size + 5}px;
   }
 `;
 

@@ -92,7 +92,12 @@ export const loginUser = async (req, res) => {
 
 const generateAccessToken = (user) => {
   return jwt.sign(
-    { id: user._id, email: user.email },
+    {
+      id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+    },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "15m" } // Access token expires in 15 minutes
   );

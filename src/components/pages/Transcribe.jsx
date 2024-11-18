@@ -1,12 +1,16 @@
+/* eslint-disable react/no-unescaped-entities */
 import { useState, useRef } from "react";
 import styled from "styled-components";
 import RecordingSection from "../transcribe/RecordingSection";
 import UploadSection from "../transcribe/UploadSection";
 import PlaybackSection from "../transcribe/PlaybackSection";
-import { Flex } from "../../ui/GlobalStyle";
-import useColors from "../../hooks/useColors";
 
+import useColors from "../../hooks/useColors";
+import { useSelector } from "react-redux";
+import WaveIcon from "../../assets/wave.png";
 const Transcribe = () => {
+  const { user } = useSelector((state) => state.auth);
+
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -17,7 +21,7 @@ const Transcribe = () => {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
-  const colors = useColors(); // Fetching colors based on theme mode
+  const colors = useColors();
 
   const startRecording = async () => {
     try {
@@ -101,21 +105,19 @@ const Transcribe = () => {
   return (
     <Container colors={colors}>
       <Header colors={colors}>
-        <h1>Audio Transcription Tool </h1>
+        <h1>
+          Hello {user?.first_name} <img src={WaveIcon} alt="wave" width={30} />
+        </h1>
+        <p>Let's transcribe something today! </p>
       </Header>
-      <Flex
-        gap="20px"
-        alignItems={"flex-start"}
-        justifyContent={"flex-start"}
-        width={"50%"}
-      >
+      <RecordContainer>
         <RecordingSection
           isRecording={isRecording}
           startRecording={startRecording}
           stopRecording={stopRecording}
         />
         <UploadSection handleFileUpload={handleFileUpload} />
-      </Flex>
+      </RecordContainer>
 
       <PlaybackSection
         audioRef={audioRef}
@@ -141,6 +143,20 @@ const Container = styled.div`
   justify-content: flex-start;
   align-items: stretch;
   height: 100%;
+  gap: 20px;
+`;
+const RecordContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  width: 60%;
+  gap: 20px;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    width: 100%;
+  }
+  @media (min-width: 1400px) {
+    width: 50%;
+  }
 `;
 
 const Header = styled.header`
@@ -148,7 +164,10 @@ const Header = styled.header`
 
   h1 {
     font-size: 24px;
-    color: ${({ colors }) => colors?.primary};
+  }
+  p {
+    font-size: 16px;
+    color: ${({ colors }) => colors?.secondaryText};
   }
 `;
 
