@@ -31,8 +31,8 @@ import { useSelector } from "react-redux";
 const Login = () => {
   const dispatch = useDispatch();
   const [credentialsData, setCredentialsData] = useState({
-    email: "",
-    password: "",
+    email: "mitul@seopage1.net",
+    password: "mitul@seopage1.net",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
