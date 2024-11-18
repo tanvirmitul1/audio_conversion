@@ -14,12 +14,12 @@ const useColors = () => {
       secondaryText: "#6c757d",
     },
     dark: {
-      background: "#121212",
+      background: "#13111C",
       text: "#ffffff",
       primary: "#a55cff",
       border: "#333",
       shadow: "rgba(255, 255, 255, 0.1)",
-      sidebarBg: "#0E1420",
+      sidebarBg: "#13111C",
       secondaryText: "#a6a6a6",
     },
   };

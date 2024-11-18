@@ -51,7 +51,7 @@ const NavbarContainer = styled.nav`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  background-color: ${({ colors }) => colors?.background};
+  background-color: ${({ colors }) => colors?.sidebarBg};
   box-shadow: 0px 4px 8px ${({ colors }) => colors?.shadow};
   border: 1px solid ${({ colors }) => colors?.border};
   height: 50px;

@@ -17,6 +17,7 @@ const Footer = () => {
       <Icon href="https://twitter.com" target="_blank">
         <FaTwitter size={15} />
       </Icon>
+      <span>© 2024 Tanvir Mitul</span>
     </FooterContainer>
   );
 };
@@ -32,6 +33,8 @@ const FooterContainer = styled.footer`
   display: flex;
   align-items: center;
   justify-content: space-around;
+  border-top: 1px solid ${({ colors }) => colors?.border};
+  font-size: 10px;
 `;
 
 const Icon = styled.a`
