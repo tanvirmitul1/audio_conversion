@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-
 import styled from "styled-components";
 import { FaUpload } from "react-icons/fa";
 import useColors from "../../hooks/useColors";
@@ -12,9 +11,16 @@ const UploadSection = ({ handleFileUpload }) => {
         Upload Audio File
       </h3>
       <UploadArea colors={colors}>
-        <FaUpload size={30} color="#007bff" />
-        <input type="file" accept="audio/*" onChange={handleFileUpload} />
-        <p>Drag and drop or click to upload an audio file</p>
+        <label htmlFor="file-upload">
+          <FaUpload size={30} color={colors?.primary} />
+          <p>Drag and drop or click to upload an audio file</p>
+        </label>
+        <input
+          id="file-upload"
+          type="file"
+          accept="audio/*"
+          onChange={handleFileUpload}
+        />
       </UploadArea>
     </Card>
   );
@@ -28,7 +34,6 @@ const Card = styled.div`
   box-shadow: 0 4px 8px ${({ colors }) => colors?.shadow};
   margin-bottom: 20px;
   width: 50%;
-  height: 100%;
   border: 1px solid ${({ colors }) => colors?.border};
 
   @media (max-width: 768px) {
@@ -38,36 +43,35 @@ const Card = styled.div`
 
   @media (min-width: 1400px) {
     width: 40%;
-    height: 100%;
   }
 `;
 
 const UploadArea = styled.div`
   text-align: center;
   width: 100%;
-  max-height: 100%;
-  border: 1px solid ${({ colors }) => colors?.border};
+  border: 2px dashed ${({ colors }) => colors?.border};
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px;
   border-radius: 10px;
-  gap: 10px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
   cursor: pointer;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
   input {
     display: none;
   }
 
   p {
     font-size: 14px;
-    color: #666;
-  }
-
-  @media (min-width: 1400px) {
-    padding: 20px;
-    max-height: 100%;
+    color: ${({ colors }) => colors?.secondaryText};
   }
 `;
 

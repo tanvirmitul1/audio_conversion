@@ -57,10 +57,10 @@ const Transcribe = () => {
   };
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]; // Access the first file
     if (file) {
       const url = URL.createObjectURL(file);
-      setAudioURL(url);
+      setAudioURL(url); // Assuming setAudioURL updates the state to store the audio URL
     }
   };
 
