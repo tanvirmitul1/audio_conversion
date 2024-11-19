@@ -8,6 +8,7 @@ import PlaybackSection from "../transcribe/PlaybackSection";
 import useColors from "../../hooks/useColors";
 import { useSelector } from "react-redux";
 import WaveIcon from "../../assets/wave.png";
+import Swal from "sweetalert2";
 const Transcribe = () => {
   const { user } = useSelector((state) => state.auth);
 
@@ -167,6 +168,43 @@ const Transcribe = () => {
     return `${mins}:${secs}`;
   };
 
+  const handleDeleteAudio = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    })
+      .then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire("Deleted!", "Your file has been deleted.", "success");
+          resetAudio();
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting audio:", error);
+      });
+  };
+
+  const resetAudio = () => {
+    setAudioURL(null);
+    setAudioMetadata(null);
+    setProgress(0);
+    setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsRecording(false);
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+  };
+
   return (
     <Container colors={colors}>
       <Header colors={colors}>
@@ -197,6 +235,7 @@ const Transcribe = () => {
         handleTimeUpdate={handleTimeUpdate}
         audioMetadata={audioMetadata}
         handleAudioMetadataLoad={handleAudioMetadataLoad}
+        handleDeleteAudio={handleDeleteAudio}
       />
     </Container>
   );

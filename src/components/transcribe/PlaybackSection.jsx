@@ -22,6 +22,7 @@ const PlaybackSection = ({
   handleTimeUpdate,
   audioMetadata,
   handleAudioMetadataLoad,
+  handleDeleteAudio,
 }) => {
   const colors = useColors();
   const formatDuration = (seconds) => {
@@ -75,7 +76,7 @@ const PlaybackSection = ({
               <IoPlayCircleOutline size={25} color={colors?.primary} />
             )}
           </ControlButton>
-          <ControlButton colors={colors}>
+          <ControlButton colors={colors} onClick={handleDeleteAudio}>
             <RiDeleteBin6Line size={20} />
           </ControlButton>
         </Flex>
