@@ -43,7 +43,11 @@ const RecordingSection = ({
             </Flex>
           </ControlButton>
 
-          <ControlButton colors={colors} onClick={stopRecording}>
+          <ControlButton
+            colors={colors}
+            onClick={stopRecording}
+            isRecording={isRecording}
+          >
             <FaStop color={colors?.primary} />
             {isRecording ? "Stop" : null}
           </ControlButton>
@@ -98,7 +102,8 @@ const RecordingControls = styled.div`
   }
 `;
 
-const ControlButton = styled.span`
+const ControlButton = styled.button`
+  background-color: transparent;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -107,16 +112,7 @@ const ControlButton = styled.span`
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
-
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
-    padding: 8px;
-  }
-
-  @media (min-width: 1200px) {
-    font-size: 1rem;
-    padding: 12px;
-  }
+  disabled: ${({ isRecording }) => !isRecording};
 `;
 
 const WaveIcon = styled(BsSoundwave)`
