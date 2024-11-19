@@ -63,7 +63,7 @@ const SidebarContainer = styled.aside`
   position: fixed;
   top: 0;
   left: ${({ visible, width }) => (visible ? "0" : `-${width}`)};
-  height: calc(100vh - 40px);
+  height: calc(100vh - 30px);
   width: ${({ width }) => width || "200px"};
   background-color: ${({ colors }) => colors?.sidebarBg};
   border-right: 1px solid ${({ colors }) => colors?.border};
@@ -72,6 +72,10 @@ const SidebarContainer = styled.aside`
   z-index: 999;
   display: flex;
   flex-direction: column;
+
+  @media (min-width: 1400px) {
+    height: calc(100vh - 40px);
+  }
 `;
 
 const Header = styled.div`
