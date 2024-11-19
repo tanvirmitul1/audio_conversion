@@ -50,13 +50,9 @@ const RecordingSection = ({
         </Flex>
         <WaveIcon size={100} color={colors?.primary} />
         {isRecording ? (
-          <ControlIcon size={30} color={colors?.primary}>
-            <FaRegCirclePause />
-          </ControlIcon>
+          <FaRegCirclePause size={30} color={colors?.primary} />
         ) : (
-          <ControlIcon size={30} color={colors?.primary}>
-            <IoPlayCircleOutline />
-          </ControlIcon>
+          <IoPlayCircleOutline size={30} color={colors?.primary} />
         )}
       </RecordingControls>
     </Card>
@@ -134,18 +130,6 @@ const WaveIcon = styled(BsSoundwave)`
   @media (min-width: 1200px) {
     margin: 25px 0;
     size: 120;
-  }
-`;
-
-const ControlIcon = styled.div`
-  font-size: ${({ size }) => size}px;
-
-  @media (max-width: 768px) {
-    font-size: ${({ size }) => size - 5}px;
-  }
-
-  @media (min-width: 1200px) {
-    font-size: ${({ size }) => size + 5}px;
   }
 `;
 
