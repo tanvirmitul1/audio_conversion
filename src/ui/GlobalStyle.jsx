@@ -10,8 +10,8 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: 'Arial', sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
+    background-color: ${({ colors }) => colors?.background};
+   
   }
 
   a {
@@ -96,4 +96,9 @@ export const AvatarIcon = styled.img`
   height: 30px;
   border-radius: 50%;
   cursor: pointer;
+`;
+
+export const Text = styled.p`
+  font-size: ${({ fontSize }) => fontSize || "14px"};
+  color: ${({ color }) => color || "#333"};
 `;

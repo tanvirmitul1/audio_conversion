@@ -12,6 +12,8 @@ const useColors = () => {
       shadow: "rgba(0, 0, 0, 0.1)",
       sidebarBg: "#F9F9F9",
       secondaryText: "#6c757d",
+      danger: "#dc3545",
+      light: "#F1F8FE",
     },
     dark: {
       background: "#13111C",
@@ -21,6 +23,8 @@ const useColors = () => {
       shadow: "rgba(255, 255, 255, 0.1)",
       sidebarBg: "#13111C",
       secondaryText: "#a6a6a6",
+      danger: "#dc3545",
+      light: "#5b0570",
     },
   };
 

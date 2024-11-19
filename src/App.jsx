@@ -10,12 +10,14 @@ import Login from "./components/pages/Login";
 import Register from "./components/pages/Register";
 import Transcribe from "./components/pages/Transcribe";
 import Documents from "./components/pages/Documents";
+import useColors from "./hooks/useColors";
 
 function App() {
+  const colors = useColors();
   return (
     <Provider store={store}>
       <Router>
-        <GlobalStyle />
+        <GlobalStyle colors={colors} />
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
