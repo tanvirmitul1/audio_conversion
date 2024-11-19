@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
 import styled from "styled-components";
 import { MdEdit, MdOutlinePictureAsPdf } from "react-icons/md";
+import useColors from "../../hooks/useColors"; // Importing the custom hook for dynamic colors
 
 const TranscriptionDetails = () => {
+  const colors = useColors(); // Getting the dynamic colors based on theme
   const [translationChunks, setTranslationChunks] = useState([
     { speaker: "Speaker 1", time: [0, 15], text: "Hello, how are you?" },
     { speaker: "Speaker 2", time: [15, 30], text: "I'm fine, thank you." },
@@ -42,9 +44,9 @@ const TranscriptionDetails = () => {
   };
 
   return (
-    <Container>
+    <Container colors={colors}>
       {/* Header */}
-      <Header>
+      <Header colors={colors}>
         <div className="doc-info">
           <MdEdit size={24} />
           <div>
@@ -64,19 +66,22 @@ const TranscriptionDetails = () => {
 
       {/* Translation Content */}
       <Content>
-        <TranslationSection>
+        <TranslationSection colors={colors}>
           {filteredChunks.map((chunk, index) => (
             <div key={index}>
               {/* Render speaker only if it changes */}
               {index === 0 ||
               filteredChunks[index - 1].speaker !== chunk.speaker ? (
-                <Speaker>{chunk.speaker}</Speaker>
+                <Speaker colors={colors}>{chunk.speaker}</Speaker>
               ) : null}
-              <Chunk>
+              <Chunk colors={colors}>
                 {showTimelaps && (
-                  <Time>{`${chunk.time[0]}-${chunk.time[1]}`}</Time>
+                  <Time
+                    colors={colors}
+                  >{`${chunk.time[0]}-${chunk.time[1]}`}</Time>
                 )}
                 <TextInput
+                  colors={colors}
                   value={chunk.text}
                   onChange={(e) => handleTextChange(index, e.target.value)}
                   onClick={() => handlePlayChunk(chunk.time[0])}
@@ -87,7 +92,7 @@ const TranscriptionDetails = () => {
         </TranslationSection>
 
         {/* Actions */}
-        <ActionsCard>
+        <ActionsCard colors={colors}>
           <button
             className="pdf-button"
             onClick={() => console.log("Show PDF")}
@@ -132,8 +137,8 @@ export default TranscriptionDetails;
 const Container = styled.div`
   padding: 20px;
   font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
+  background-color: ${({ colors }) => colors.background};
+  color: ${({ colors }) => colors.text};
 `;
 
 const Header = styled.div`
@@ -154,16 +159,17 @@ const Header = styled.div`
 
     p {
       margin: 0;
-      color: #888;
+      color: ${({ colors }) => colors.secondaryText};
       font-size: 14px;
     }
   }
 
   .search-bar input {
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid ${({ colors }) => colors.border};
     border-radius: 5px;
     width: 300px;
+    background-color: ${({ colors }) => colors.light};
   }
 `;
 
@@ -176,29 +182,29 @@ const Content = styled.div`
 const TranslationSection = styled.div`
   flex: 3;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid ${({ colors }) => colors.border};
   border-radius: 5px;
-  background-color: #fff;
+  background-color: ${({ colors }) => colors.light};
 `;
 
 const Speaker = styled.div`
   font-weight: bold;
-  color: #555;
+  color: ${({ colors }) => colors.secondaryText};
   margin-top: 15px;
 `;
 
 const Chunk = styled.div`
   margin: 10px 0;
   padding: 10px;
-  border: 1px dashed #bbb;
+  border: 1px dashed ${({ colors }) => colors.border};
   border-radius: 5px;
-  background-color: #f9f9f9;
+  background-color: ${({ colors }) => colors.background};
 `;
 
 const Time = styled.span`
   display: block;
   font-size: 12px;
-  color: #888;
+  color: ${({ colors }) => colors.secondaryText};
 `;
 
 const TextInput = styled.textarea`
@@ -207,23 +213,23 @@ const TextInput = styled.textarea`
   resize: none;
   background: transparent;
   font-size: 14px;
-  color: #333;
+  color: ${({ colors }) => colors.text};
   outline: none;
 `;
 
 const ActionsCard = styled.div`
   flex: 1;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid ${({ colors }) => colors.border};
   border-radius: 5px;
-  background-color: #fff;
+  background-color: ${({ colors }) => colors.light};
 
   .pdf-button {
     display: flex;
     align-items: center;
     gap: 5px;
     padding: 8px;
-    background-color: #007bff;
+    background-color: ${({ colors }) => colors.primary};
     color: white;
     border: none;
     border-radius: 5px;
@@ -231,7 +237,8 @@ const ActionsCard = styled.div`
     margin-bottom: 10px;
 
     &:hover {
-      background-color: #0056b3;
+      background-color: ${({ colors }) => colors.primary};
+      opacity: 0.9;
     }
   }
 
@@ -260,22 +267,22 @@ const ActionsCard = styled.div`
       cursor: pointer;
 
       &.discard {
-        background-color: #dc3545;
+        background-color: ${({ colors }) => colors.danger};
         color: white;
         border: none;
 
         &:hover {
-          background-color: #b52a37;
+          opacity: 0.9;
         }
       }
 
       &.save {
-        background-color: #28a745;
+        background-color: ${({ colors }) => colors.primary};
         color: white;
         border: none;
 
         &:hover {
-          background-color: #1c6c2d;
+          opacity: 0.9;
         }
       }
     }

@@ -24,7 +24,7 @@ const useColors = () => {
       sidebarBg: "#13111C",
       secondaryText: "#a6a6a6",
       danger: "#dc3545",
-      light: "#5b0570",
+      light: "#060107",
     },
   };
 
