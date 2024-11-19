@@ -54,6 +54,19 @@ const UsersList = () => {
     });
   };
 
+  const handleDelete = (index) => {
+    const newUsers = [...users];
+    newUsers.splice(index, 1);
+    setUsers(newUsers);
+  };
+
+  const handleChangeRole = (index) => {
+    const newUsers = [...users];
+    const newRole = newUsers[index].role === "Admin" ? "User" : "Admin";
+    newUsers[index].role = newRole;
+    setUsers(newUsers);
+  };
+
   return (
     <ListContainer colors={colors}>
       <h3>User List</h3>
@@ -84,6 +97,12 @@ const UsersList = () => {
                 <span>{user.username}</span>
                 <span>{user.email}</span>
                 <span>{user.role}</span>
+                <ActionColumn colors={colors}>
+                  <button onClick={() => handleDelete(index)}>Delete</button>
+                  <button onClick={() => handleChangeRole(index)}>
+                    Change Role
+                  </button>
+                </ActionColumn>
               </ListItem>
             ))}
           </ul>
@@ -138,6 +157,24 @@ const ListItem = styled.li`
 
   span {
     color: ${({ colors }) => colors?.text};
+  }
+`;
+
+const ActionColumn = styled.div`
+  display: flex;
+  gap: 10px;
+
+  button {
+    padding: 5px 10px;
+    background-color: ${({ colors }) => colors?.primary};
+    color: ${({ colors }) => colors?.background};
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: ${({ colors }) => colors?.secondary};
+    }
   }
 `;
 
