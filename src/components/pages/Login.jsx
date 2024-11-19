@@ -81,12 +81,13 @@ const Login = () => {
         dispatch(setCredentials({ access, refresh, user: decodedUser }));
 
         Swal.fire({
+          title: "Logged in!",
+          text: "You have successfully logged in.",
           icon: "success",
-          title: "Success",
-          text: "Login successful",
-          showConfirmButton: false,
           timer: 1500,
+          showConfirmButton: false,
         });
+
         navigate("/");
       }
     } catch (err) {

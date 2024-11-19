@@ -69,16 +69,20 @@ const PlaybackSection = ({
               <ProgressBar colors={colors} style={{ width: `${progress}%` }} />
             </ProgressContainer>
           </Flex>
-          <ControlButton onClick={togglePlayback} colors={colors}>
-            {isPlaying ? (
-              <FaRegCirclePause size={25} color={colors?.primary} />
-            ) : (
-              <IoPlayCircleOutline size={25} color={colors?.primary} />
-            )}
-          </ControlButton>
-          <ControlButton colors={colors} onClick={handleDeleteAudio}>
-            <RiDeleteBin6Line size={20} />
-          </ControlButton>
+          {audioURL && (
+            <ControlButton onClick={togglePlayback} colors={colors}>
+              {isPlaying ? (
+                <FaRegCirclePause size={25} color={colors?.primary} />
+              ) : (
+                <IoPlayCircleOutline size={25} color={colors?.primary} />
+              )}
+            </ControlButton>
+          )}
+          {audioURL && (
+            <ControlButton colors={colors} onClick={handleDeleteAudio}>
+              <RiDeleteBin6Line size={20} />
+            </ControlButton>
+          )}
         </Flex>
 
         <VolumeControl colors={colors}>
