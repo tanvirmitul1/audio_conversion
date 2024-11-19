@@ -3,6 +3,7 @@ import { useState } from "react";
 import useColors from "../../hooks/useColors";
 import styled from "styled-components";
 import ReactModal from "react-modal";
+import { Flex } from "../../ui/GlobalStyle";
 
 const RegistrationModal = ({ isOpen, onRequestClose }) => {
   const colors = useColors();
@@ -120,7 +121,7 @@ const RegistrationModal = ({ isOpen, onRequestClose }) => {
           maxHeight: "95vh",
           maxWidth: "800px",
           margin: "auto",
-          border: "none",
+          border: "1px solid grey",
           padding: "0",
           msOverflowStyle: "none",
           scrollbarWidth: "none",
@@ -145,46 +146,53 @@ const RegistrationModal = ({ isOpen, onRequestClose }) => {
       <FormContainer colors={colors}>
         <form onSubmit={handleSubmit}>
           <InputRow>
-            <Input
-              colors={colors}
-              type="text"
-              name="first_name"
-              placeholder="First Name"
-              value={userDetails.first_name}
-              onChange={handleChange}
-            />
-            {errors.first_name && <Error>{errors.first_name}</Error>}
-
-            <Input
-              colors={colors}
-              type="text"
-              name="last_name"
-              placeholder="Last Name"
-              value={userDetails.last_name}
-              onChange={handleChange}
-            />
-            {errors.last_name && <Error>{errors.last_name}</Error>}
+            <Flex direction={"column"}>
+              <Input
+                colors={colors}
+                type="text"
+                name="first_name"
+                placeholder="First Name"
+                value={userDetails.first_name}
+                onChange={handleChange}
+              />
+              {errors.first_name && <Error>{errors.first_name}</Error>}
+            </Flex>
+            <Flex direction={"column"}>
+              <Input
+                colors={colors}
+                type="text"
+                name="last_name"
+                placeholder="Last Name"
+                value={userDetails.last_name}
+                onChange={handleChange}
+              />
+              {errors.last_name && <Error>{errors.last_name}</Error>}
+            </Flex>
           </InputRow>
-
-          <Input
-            colors={colors}
-            type="text"
-            name="mobile_number"
-            placeholder="Mobile Number"
-            value={userDetails.mobile_number}
-            onChange={handleChange}
-          />
-          {errors.mobile_number && <Error>{errors.mobile_number}</Error>}
-
-          <Input
-            colors={colors}
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={userDetails.email}
-            onChange={handleChange}
-          />
-          {errors.email && <Error>{errors.email}</Error>}
+          <InputRow>
+            <Flex direction={"column"}>
+              <Input
+                colors={colors}
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={userDetails.email}
+                onChange={handleChange}
+              />
+              {errors.email && <Error>{errors.email}</Error>}
+            </Flex>
+            <Flex direction={"column"}>
+              <Input
+                colors={colors}
+                type="text"
+                name="mobile_number"
+                placeholder="Mobile Number"
+                value={userDetails.mobile_number}
+                onChange={handleChange}
+              />
+              {errors.mobile_number && <Error>{errors.mobile_number}</Error>}
+            </Flex>
+          </InputRow>
 
           <Input
             colors={colors}
@@ -236,7 +244,7 @@ const FormContainer = styled.div`
   flex: 1;
   padding: 20px;
   background-color: ${({ colors }) => colors?.light};
-  border-radius: 8px;
+
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
@@ -250,7 +258,7 @@ const Header = styled.div`
   border-radius: 8px 8px 0 0;
 
   h3 {
-    color: ${({ colors }) => colors?.text};
+    color: white;
     margin: 0;
   }
 `;
@@ -262,7 +270,7 @@ const CloseButton = styled.button`
   border-radius: 5px;
   border: none;
   cursor: pointer;
-
+  color: white;
   &:hover {
     opacity: 0.7;
   }

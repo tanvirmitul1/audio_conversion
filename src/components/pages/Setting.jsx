@@ -20,7 +20,7 @@ const Setting = () => {
   return (
     <Container colors={colors}>
       <AddButton colors={colors} onClick={handleOpenModal}>
-        <FaUserPlus size={24} />
+        <FaUserPlus color="white" size={24} />
         <span>Add User</span>
       </AddButton>
       <Content>
@@ -63,6 +63,7 @@ const AddButton = styled.button`
 
   span {
     margin-left: 10px;
+    color: white;
   }
 
   &:hover {
