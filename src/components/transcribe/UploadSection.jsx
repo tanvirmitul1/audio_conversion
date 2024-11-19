@@ -33,9 +33,7 @@ const UploadSection = ({ handleFileUpload }) => {
 
   return (
     <Card colors={colors}>
-      <h3 style={{ color: colors?.text, marginBottom: "10px" }}>
-        Upload Audio File
-      </h3>
+      <h3 style={{ color: colors?.text, marginBottom: "10px" }}>Upload File</h3>
       <UploadArea
         colors={colors}
         isDragging={isDragging}
