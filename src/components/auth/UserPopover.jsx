@@ -41,8 +41,8 @@ const UserPopover = () => {
       </OptionButton>
       <Flex justifyContent="space-between" alignItems="center">
         <OptionButton colors={colors} onClick={() => dispatch(logout())}>
-          <PiSignOutBold size={25} />
-          <span>Logout</span>
+          <PiSignOutBold color={colors?.danger} size={25} />
+          <p>Logout</p>
         </OptionButton>
         <OptionButton colors={colors}>
           {mode === "dark" ? (
@@ -111,6 +111,9 @@ const OptionButton = styled.button`
   display: flex;
   align-items: center;
   gap: 5px;
+  p {
+    color: ${({ colors }) => colors?.danger};
+  }
 
   &:hover {
     background-color: ${({ colors }) => colors?.sidebarBg};
