@@ -37,7 +37,7 @@ const LeftSideBar = ({ visible, width, toggleSidebar }) => {
           <StyledLink
             to="/documents"
             colors={colors}
-            className={isActive("/admin") ? "active" : ""}
+            className={isActive("/documents") ? "active" : ""}
           >
             <FaClipboardList /> Documents
           </StyledLink>
