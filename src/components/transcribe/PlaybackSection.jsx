@@ -89,7 +89,6 @@ const PlaybackSection = ({
             step="0.01"
             value={volume}
             onChange={handleVolumeChange}
-            style={{ height: "5px" }}
           />
         </VolumeControl>
       </AudioPlayer>
@@ -155,9 +154,9 @@ const VolumeControl = styled.div`
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-
   input {
     width: 100px;
+    height: 5px;
   }
 `;
 
