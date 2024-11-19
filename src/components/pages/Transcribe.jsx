@@ -16,7 +16,11 @@ const Transcribe = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const [progress, setProgress] = useState(0);
-  const [audioMetadata, setAudioMetadata] = useState({ name: "", duration: 0 });
+  const [audioMetadata, setAudioMetadata] = useState({
+    name: "",
+    duration: 0,
+    size: 0,
+  });
 
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -79,7 +83,8 @@ const Transcribe = () => {
           .toISOString()
           .slice(0, 19)
           .replace("T", "_")}.mp3`;
-        setAudioMetadata({ name: fileName, duration: 0 }); // Set recording name and initialize duration
+        const size = audioBlob.size / 1024 / 1024; // Convert to MB
+        setAudioMetadata({ name: fileName, duration: 0, size }); // Set recording name and initialize duration
 
         audioChunksRef.current = [];
       };
@@ -91,7 +96,8 @@ const Transcribe = () => {
     if (file) {
       const url = URL.createObjectURL(file);
       setAudioURL(url);
-      setAudioMetadata({ name: file.name, duration: 0 }); // Set file name
+      const size = file.size / 1024 / 1024; // Convert to MB
+      setAudioMetadata({ name: file.name, duration: 0, size }); // Set file name
     }
   };
   const handleAudioMetadataLoad = () => {
