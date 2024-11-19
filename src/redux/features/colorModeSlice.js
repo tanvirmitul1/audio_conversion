@@ -1,8 +1,11 @@
 // store/colorModeSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
+const storedColorMode = localStorage.getItem("colorMode");
+const initialMode = storedColorMode ? storedColorMode : "light";
+
 const initialState = {
-  mode: "light",
+  mode: initialMode,
 };
 
 const colorModeSlice = createSlice({
@@ -11,6 +14,8 @@ const colorModeSlice = createSlice({
   reducers: {
     toggleColorMode: (state) => {
       state.mode = state.mode === "light" ? "dark" : "light";
+
+      localStorage.setItem("colorMode", state.mode);
     },
   },
 });
