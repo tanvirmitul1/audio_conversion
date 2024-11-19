@@ -45,13 +45,13 @@ const UserPopover = () => {
           <span>Logout</span>
         </OptionButton>
         <OptionButton colors={colors}>
-          {mode === "light" ? (
+          {mode === "dark" ? (
             <Flex onClick={() => dispatch(toggleColorMode())}>
-              <MdOutlineDarkMode size={25} /> <span>Light Mode</span>
+              <MdOutlineLightMode size={25} /> <span>Light Mode</span>
             </Flex>
           ) : (
             <Flex onClick={() => dispatch(toggleColorMode())}>
-              <MdOutlineLightMode size={25} /> <span>Dark Mode</span>
+              <MdOutlineDarkMode size={25} /> <span>Dark Mode</span>
             </Flex>
           )}
         </OptionButton>
