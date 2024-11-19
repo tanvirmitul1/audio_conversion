@@ -35,7 +35,7 @@ const LeftSideBar = ({ visible, width, toggleSidebar }) => {
         </SidebarItem>
         <SidebarItem>
           <StyledLink
-            to="/admin"
+            to="/documents"
             colors={colors}
             className={isActive("/admin") ? "active" : ""}
           >
@@ -72,7 +72,6 @@ const SidebarContainer = styled.aside`
   z-index: 999;
   display: flex;
   flex-direction: column;
-
   @media (min-width: 1400px) {
     height: calc(100vh - 40px);
   }

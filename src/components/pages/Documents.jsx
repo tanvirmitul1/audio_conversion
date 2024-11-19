@@ -8,6 +8,8 @@ import {
   MdOutlineTableChart,
 } from "react-icons/md";
 import swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // Dummy Data
 const dummyData = Array.from({ length: 10 }, (_, index) => ({
@@ -19,6 +21,7 @@ const dummyData = Array.from({ length: 10 }, (_, index) => ({
 }));
 
 const Documents = () => {
+  const navigate = useNavigate();
   const colors = useColors();
   const [data, setData] = useState(dummyData);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +48,23 @@ const Documents = () => {
   );
 
   const handleEdit = (id) => {
-    swal.fire("Edit", `Edit functionality for document ID: ${id}`, "info");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to edit this document?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, edit it!",
+      cancelButtonText: "No, cancel!",
+      reverseButtons: true,
+    })
+      .then((result) => {
+        if (result.isConfirmed) {
+          navigate(`/documents/${id}`);
+        }
+      })
+      .catch((error) => {
+        console.error("Error editing document:", error);
+      });
   };
 
   const handleDelete = (id) => {

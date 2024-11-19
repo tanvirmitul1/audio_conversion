@@ -11,6 +11,7 @@ import Register from "./components/pages/Register";
 import Transcribe from "./components/pages/Transcribe";
 import Documents from "./components/pages/Documents";
 import useColors from "./hooks/useColors";
+import TranscriptionDetails from "./components/Documents/TrancriptionDetails";
 
 function App() {
   const colors = useColors();
@@ -35,11 +36,21 @@ function App() {
             }
           />
           <Route
-            path="/admin"
+            path="/documents"
             element={
               <AdminRoute>
                 <Layout>
                   <Documents />
+                </Layout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/documents/:id"
+            element={
+              <AdminRoute>
+                <Layout>
+                  <TranscriptionDetails />
                 </Layout>
               </AdminRoute>
             }
