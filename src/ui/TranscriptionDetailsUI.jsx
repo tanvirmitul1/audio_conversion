@@ -81,34 +81,34 @@ export const TextInput = styled.input`
   background: transparent;
   color: ${({ colors }) => colors?.text};
   outline: none;
+  cursor: pointer;
 `;
 
 export const ActionsCard = styled.div`
   flex: 1;
-  padding: 10px;
+  padding: 30px;
   border: 1px solid ${({ colors }) => colors?.border};
   border-radius: 5px;
-  background-color: ${({ colors }) => colors?.light};
+  background-color: ${({ colors }) => colors?.sidebarBg};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
 
-  .pdf-button {
+  .pdf-container {
     display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px;
-    background-color: ${({ colors }) => colors?.primary};
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 10px;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .checkbox-container {
     margin-bottom: 10px;
+  }
 
-    label {
-      font-size: 14px;
-    }
+  .actions {
+    display: flex;
+
+    gap: 10px;
   }
 
   .actions button {
@@ -134,6 +134,7 @@ export const ActionsCard = styled.div`
 
 export const AudioPlayer = styled.div`
   margin-top: 20px;
+  width: 50%;
 `;
 
 export const SingleText = styled.div`

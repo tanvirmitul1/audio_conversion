@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { MdOutlinePictureAsPdf } from "react-icons/md";
-import useColors from "../../hooks/useColors";
+
 import { FiEdit } from "react-icons/fi";
 import SearchBar from "../reusable/SearchBar";
 import { useParams } from "react-router-dom";
 import { dummyData } from "../../utils/dummydata";
+import { jsPDF } from "jspdf";
+import ReactPlayer from "react-player";
 import {
   ActionsCard,
   AudioPlayer,
@@ -18,15 +19,13 @@ import {
   Time,
   TranslationSection,
 } from "../../ui/TranscriptionDetailsUI";
+import useColors from "../../hooks/useColors";
+import { FaRegFilePdf } from "react-icons/fa";
 
 const TranscriptionDetails = () => {
+  const colors = useColors();
   const { id } = useParams();
   const [data, setData] = useState([]);
-  useEffect(() => {
-    if (id && dummyData.length > 0)
-      setData(dummyData.find((d) => d.id === parseInt(id)));
-  }, [id, dummyData]);
-  const colors = useColors();
   const [translationChunks, setTranslationChunks] = useState([
     {
       speaker: "Speaker 1",
@@ -80,13 +79,39 @@ const TranscriptionDetails = () => {
   const [showTimelaps, setShowTimelaps] = useState(true);
   const audioRef = useRef(null);
 
+  useEffect(() => {
+    if (id && dummyData.length > 0)
+      setData(dummyData.find((d) => d.id === parseInt(id)));
+  }, [id, dummyData]);
+
+  // Handle audio play for the chunk
   const handlePlayChunk = (startTime) => {
     if (audioRef.current) {
-      audioRef.current.currentTime = startTime;
+      audioRef.current.seekTo(startTime);
       audioRef.current.play();
     }
   };
 
+  // Handle text change
+  const handleTextChange = (chunkIndex, translationIndex, newText) => {
+    const updatedChunks = [...translationChunks];
+    updatedChunks[chunkIndex].translation[translationIndex].text = newText;
+    setTranslationChunks(updatedChunks);
+  };
+
+  // Handle Save Changes
+  const handleSave = () => {
+    alert("Changes saved!");
+    console.log("Updated Translations:", translationChunks);
+  };
+
+  // Handle Discard Changes
+  const handleDiscard = () => {
+    alert("Changes discarded!");
+    // Optionally, reset translationChunks here.
+  };
+
+  // Filter translations based on search term
   const filteredChunks = translationChunks
     .map((chunk) => ({
       ...chunk,
@@ -96,25 +121,24 @@ const TranscriptionDetails = () => {
     }))
     .filter((chunk) => chunk.translation.length > 0);
 
-  const handleTextChange = (chunkIndex, translationIndex, newText) => {
-    const updatedChunks = [...translationChunks];
-    updatedChunks[chunkIndex].translation[translationIndex].bangla = newText;
-    setTranslationChunks(updatedChunks);
-  };
-
-  const handleSave = () => {
-    alert("Changes saved!");
-    console.log("Updated Translations:", translationChunks);
-  };
-
-  const handleDiscard = () => {
-    alert("Changes discarded!");
-    // Optionally, reset translationChunks here.
+  // Generate PDF
+  const handleGeneratePDF = () => {
+    const doc = new jsPDF();
+    filteredChunks.forEach((chunk, chunkIndex) => {
+      doc.text(`${chunk.speaker}:`, 10, 20 + chunkIndex * 10);
+      chunk.translation.forEach((translation, translationIndex) => {
+        doc.text(
+          `${translation.text}`,
+          10,
+          30 + chunkIndex * 10 + translationIndex * 10
+        );
+      });
+    });
+    doc.save("transcription.pdf");
   };
 
   return (
     <Container colors={colors}>
-      {/* Header */}
       <Header colors={colors}>
         <div className="doc-info">
           <FiEdit size={40} />
@@ -123,7 +147,6 @@ const TranscriptionDetails = () => {
             <p>{data?.date}</p>
           </div>
         </div>
-
         <SearchBar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
@@ -131,22 +154,20 @@ const TranscriptionDetails = () => {
         />
       </Header>
 
-      {/* Translation Content */}
       <Content>
         <TranslationSection colors={colors}>
           {filteredChunks.map((chunk, chunkIndex) => (
             <div key={chunkIndex}>
-              <Speaker colors={colors}>{chunk.speaker}</Speaker>
+              <Speaker>{chunk.speaker}</Speaker>
               <Chunk colors={colors}>
                 {chunk.translation.map((translation, translationIndex) => (
                   <SingleText key={translationIndex}>
                     {showTimelaps && (
-                      <Time colors={colors}>
+                      <Time>
                         {`(${translation.time[0]}-${translation.time[1]})`}
                       </Time>
                     )}
                     <TextInput
-                      colors={colors}
                       value={translation.text}
                       onChange={(e) =>
                         handleTextChange(
@@ -164,23 +185,21 @@ const TranscriptionDetails = () => {
           ))}
         </TranslationSection>
 
-        {/* Actions */}
         <ActionsCard colors={colors}>
-          <button
-            className="pdf-button"
-            onClick={() => console.log("Show PDF")}
-          >
-            <MdOutlinePictureAsPdf size={20} /> Show PDF
-          </button>
-          <div className="checkbox-container">
-            <label>
-              <input
-                type="checkbox"
-                checked={showTimelaps}
-                onChange={() => setShowTimelaps(!showTimelaps)}
-              />
-              Show Timelaps
-            </label>
+          <div className="pdf-container">
+            <div onClick={handleGeneratePDF}>
+              <FaRegFilePdf size={20} /> Download PDF
+            </div>
+            <div className="checkbox-container">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showTimelaps}
+                  onChange={() => setShowTimelaps(!showTimelaps)}
+                />
+                <span style={{ marginLeft: "5px" }}>Show Timestamps</span>
+              </label>
+            </div>
           </div>
           <div className="actions">
             <button className="discard" onClick={handleDiscard}>
@@ -193,12 +212,14 @@ const TranscriptionDetails = () => {
         </ActionsCard>
       </Content>
 
-      {/* Audio Player */}
       <AudioPlayer>
-        <audio ref={audioRef} controls>
-          <source src="https://example.com/audio.mp3" type="audio/mpeg" />
-          Your browser does not support the audio element.
-        </audio>
+        <ReactPlayer
+          ref={audioRef}
+          url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+          controls
+          width="100%"
+          height="50px"
+        />
       </AudioPlayer>
     </Container>
   );
