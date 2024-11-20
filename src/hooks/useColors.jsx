@@ -14,10 +14,12 @@ const useColors = () => {
       secondaryText: "#6c757d",
       danger: "#dc3545",
       light: "#F1F8FE",
+      buttonColor: "#ffffff",
+      success: "#28a745",
     },
     dark: {
       background: "#13111C",
-      text: "#ffffff",
+      text: "#faf8f8",
       primary: "#a55cff",
       border: "#333",
       shadow: "rgba(255, 255, 255, 0.1)",
@@ -25,6 +27,8 @@ const useColors = () => {
       secondaryText: "#a6a6a6",
       danger: "#dc3545",
       light: "#060107",
+      buttonColor: "#13111C",
+      success: "#28a745",
     },
   };
 
