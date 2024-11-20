@@ -168,6 +168,7 @@ const TranscriptionDetails = () => {
                       </Time>
                     )}
                     <TextInput
+                      colors={colors}
                       value={translation.text}
                       onChange={(e) =>
                         handleTextChange(

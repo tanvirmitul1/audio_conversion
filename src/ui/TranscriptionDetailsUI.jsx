@@ -77,7 +77,6 @@ export const Time = styled.span`
 export const TextInput = styled.input`
   border: none;
   resize: none;
-
   background: transparent;
   color: ${({ colors }) => colors?.text};
   outline: none;
@@ -141,4 +140,5 @@ export const SingleText = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  gap: 5px;
 `;
