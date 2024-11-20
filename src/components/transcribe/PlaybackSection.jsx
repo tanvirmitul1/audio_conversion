@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaVolumeUp } from "react-icons/fa";
 import useColors from "../../hooks/useColors";
 import { Flex, Text } from "../../ui/GlobalStyle";
@@ -18,8 +18,9 @@ import {
   TranscribeButton,
   VolumeControl,
 } from "../../ui/PlaybackSectionUI";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 import { chunkAudio } from "../../utils/audioHelpers";
+
 const PlaybackSection = ({
   audioRef,
   audioURL,
@@ -35,6 +36,8 @@ const PlaybackSection = ({
   handleDeleteAudio,
 }) => {
   const colors = useColors();
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
   const formatDuration = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60)
@@ -43,28 +46,57 @@ const PlaybackSection = ({
     return `${mins} minutes ${secs} seconds`;
   };
 
-  const socket = io("https://stt.bangla.gov.bd:9394/");
+  // Initialize socket connection and set up listeners
+  // useEffect(() => {
+  //   const socket = io("https://stt.bangla.gov.bd:9394/");
 
-  socket.on("result", (data) => {
-    console.log("Transcription Result:", data);
-  });
-  socket.on("result_upload", (data) => {
-    console.log("Transcription Result:", data);
-  });
+  //   socket.on("result", (data) => {
+  //     console.log("Transcription Result:", data);
+  //   });
+
+  //   socket.on("result_upload", (data) => {
+  //     console.log("Transcription Upload Result:", data);
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
 
   const handleTranscribe = async () => {
+    if (!audioRef.current) {
+      console.error("Audio reference is null or undefined.");
+      return;
+    }
+
     try {
+      setIsTranscribing(true);
       const audioChunks = await chunkAudio(audioRef.current, 0.5);
 
-      console.log({ audioChunks });
-      audioChunks.forEach((chunk) => {
-        socket.emit("audio_transmit", chunk);
-      });
+      if (audioChunks.length === 0) {
+        console.warn("No audio chunks to send.");
+        return;
+      }
+
+      // const socket = io("https://stt.bangla.gov.bd:9394/");
+      // audioChunks.forEach((chunk) => {
+      //   socket.emit("audio_transmit", chunk);
+      // });
 
       console.log("Chunks sent to backend:", audioChunks);
     } catch (error) {
-      console.error("Error chunking audio:", error);
+      console.error("Error chunking or sending audio:", error.message);
+    } finally {
+      setIsTranscribing(false);
     }
+  };
+
+  const handleTogglePlayback = () => {
+    if (!audioURL) {
+      console.error("No audio loaded to play.");
+      return;
+    }
+    togglePlayback(!isPlaying);
   };
 
   return (
@@ -85,11 +117,10 @@ const PlaybackSection = ({
 
           <Flex direction={"column"} justifyContent={"flex-start"} gap={"5px"}>
             <FileInfo colors={colors}>
-              <strong>{audioMetadata?.name}</strong>
+              <strong>{audioMetadata?.name || "Unnamed Audio"}</strong>
 
               {audioMetadata?.size > 0 && (
                 <Text color={colors?.secondaryText}>
-                  {" "}
                   {audioMetadata?.size.toFixed(2)} MB
                 </Text>
               )}
@@ -104,7 +135,7 @@ const PlaybackSection = ({
             </ProgressContainer>
           </Flex>
           {audioURL && (
-            <ControlButton onClick={togglePlayback} colors={colors}>
+            <ControlButton onClick={handleTogglePlayback} colors={colors}>
               {isPlaying ? (
                 <FaRegCirclePause size={25} color={colors?.primary} />
               ) : (
@@ -132,8 +163,12 @@ const PlaybackSection = ({
         </VolumeControl>
       </AudioPlayer>
 
-      <TranscribeButton colors={colors} onClick={handleTranscribe}>
-        Transcribe
+      <TranscribeButton
+        colors={colors}
+        onClick={handleTranscribe}
+        disabled={isTranscribing}
+      >
+        {isTranscribing ? "Transcribing..." : "Transcribe"}
       </TranscribeButton>
     </Card>
   );
