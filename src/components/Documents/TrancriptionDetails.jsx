@@ -188,7 +188,7 @@ const TranscriptionDetails = () => {
 
         <ActionsCard colors={colors}>
           <div className="pdf-container">
-            <div onClick={handleGeneratePDF}>
+            <div className="pdf-button" onClick={handleGeneratePDF}>
               <FaRegFilePdf size={20} /> Download PDF
             </div>
             <div className="checkbox-container">

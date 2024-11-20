@@ -99,6 +99,9 @@ export const ActionsCard = styled.div`
     flex-direction: column;
     gap: 10px;
   }
+  .pdf-button {
+    cursor: pointer;
+  }
 
   .checkbox-container {
     margin-bottom: 10px;
