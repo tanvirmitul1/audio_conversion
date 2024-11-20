@@ -1,11 +1,23 @@
 import { useState, useRef, useEffect } from "react";
-import styled from "styled-components";
 import { MdOutlinePictureAsPdf } from "react-icons/md";
 import useColors from "../../hooks/useColors";
 import { FiEdit } from "react-icons/fi";
 import SearchBar from "../reusable/SearchBar";
 import { useParams } from "react-router-dom";
 import { dummyData } from "../../utils/dummydata";
+import {
+  ActionsCard,
+  AudioPlayer,
+  Chunk,
+  Container,
+  Content,
+  Header,
+  SingleText,
+  Speaker,
+  TextInput,
+  Time,
+  TranslationSection,
+} from "../../ui/TranscriptionDetailsUI";
 
 const TranscriptionDetails = () => {
   const { id } = useParams();
@@ -193,145 +205,3 @@ const TranscriptionDetails = () => {
 };
 
 export default TranscriptionDetails;
-
-/* Styled Components */
-const Container = styled.div`
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background-color: ${({ colors }) => colors?.background};
-  color: ${({ colors }) => colors?.text};
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-
-  .doc-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    p {
-      margin: 0;
-      color: ${({ colors }) => colors?.secondaryText};
-      font-size: 14px;
-    }
-  }
-
-  .search-bar input {
-    padding: 8px;
-    border: 1px solid ${({ colors }) => colors?.border};
-    border-radius: 5px;
-    width: 300px;
-    background-color: ${({ colors }) => colors?.light};
-  }
-`;
-
-const Content = styled.div`
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-`;
-
-const TranslationSection = styled.div`
-  flex: 3;
-  padding: 10px;
-  border: 1px solid ${({ colors }) => colors?.border};
-  border-radius: 5px;
-  background-color: ${({ colors }) => colors?.sidebarBg};
-`;
-
-const Speaker = styled.div`
-  font-weight: bold;
-  color: ${({ colors }) => colors?.secondaryText};
-  margin-top: 15px;
-`;
-
-const Chunk = styled.div`
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 5px;
-  display: flex;
-  justify-content: flex-start;
-`;
-
-const Time = styled.span`
-  display: flex;
-  font-size: 12px;
-  color: ${({ colors }) => colors?.secondaryText};
-`;
-
-const TextInput = styled.input`
-  border: none;
-  resize: none;
-
-  background: transparent;
-  color: ${({ colors }) => colors?.text};
-  outline: none;
-`;
-
-const ActionsCard = styled.div`
-  flex: 1;
-  padding: 10px;
-  border: 1px solid ${({ colors }) => colors?.border};
-  border-radius: 5px;
-  background-color: ${({ colors }) => colors?.light};
-
-  .pdf-button {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px;
-    background-color: ${({ colors }) => colors?.primary};
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 10px;
-  }
-
-  .checkbox-container {
-    margin-bottom: 10px;
-
-    label {
-      font-size: 14px;
-    }
-  }
-
-  .actions button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-
-  .discard {
-    background-color: ${({ colors }) => colors?.danger};
-    color: white;
-  }
-
-  .save {
-    background-color: ${({ colors }) => colors?.success};
-    color: white;
-  }
-`;
-
-const AudioPlayer = styled.div`
-  margin-top: 20px;
-`;
-
-const SingleText = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-`;
