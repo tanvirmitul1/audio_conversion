@@ -1,15 +1,25 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import React from "react";
-import styled from "styled-components";
-import { FaPlay, FaPause, FaVolumeUp, FaFileAudio } from "react-icons/fa";
+import { FaVolumeUp } from "react-icons/fa";
 import useColors from "../../hooks/useColors";
 import { Flex, Text } from "../../ui/GlobalStyle";
 import { FaRegCirclePause } from "react-icons/fa6";
 import { IoPlayCircleOutline } from "react-icons/io5";
 import { LuFileAudio2 } from "react-icons/lu";
 import { RiDeleteBin6Line } from "react-icons/ri";
-
+import {
+  AudioPlayer,
+  Card,
+  ControlButton,
+  FileInfo,
+  ProgressBar,
+  ProgressContainer,
+  TranscribeButton,
+  VolumeControl,
+} from "../../ui/PlaybackSectionUI";
+import { io } from "socket.io-client";
+import { chunkAudio } from "../../utils/audioHelpers";
 const PlaybackSection = ({
   audioRef,
   audioURL,
@@ -31,6 +41,30 @@ const PlaybackSection = ({
       .toString()
       .padStart(2, "0");
     return `${mins} minutes ${secs} seconds`;
+  };
+
+  const socket = io("https://stt.bangla.gov.bd:9394/");
+
+  socket.on("result", (data) => {
+    console.log("Transcription Result:", data);
+  });
+  socket.on("result_upload", (data) => {
+    console.log("Transcription Result:", data);
+  });
+
+  const handleTranscribe = async () => {
+    try {
+      const audioChunks = await chunkAudio(audioRef.current, 0.5);
+
+      console.log({ audioChunks });
+      audioChunks.forEach((chunk) => {
+        socket.emit("audio_transmit", chunk);
+      });
+
+      console.log("Chunks sent to backend:", audioChunks);
+    } catch (error) {
+      console.error("Error chunking audio:", error);
+    }
   };
 
   return (
@@ -98,91 +132,11 @@ const PlaybackSection = ({
         </VolumeControl>
       </AudioPlayer>
 
-      <TranscribeButton colors={colors}>Transcribe</TranscribeButton>
+      <TranscribeButton colors={colors} onClick={handleTranscribe}>
+        Transcribe
+      </TranscribeButton>
     </Card>
   );
 };
 
-const Card = styled.div`
-  background: ${({ colors }) => colors?.background};
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px ${({ colors }) => colors?.shadow};
-  width: 50%;
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
-const FileInfo = styled.div`
-  color: ${({ colors }) => colors.text};
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 10px;
-
-  p {
-    margin: 0;
-    font-size: 14px;
-
-    strong {
-      color: ${({ colors }) => colors.primary};
-    }
-  }
-`;
-
-const AudioPlayer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const ProgressContainer = styled.span`
-  height: 5px;
-  background: ${({ colors }) => colors?.border};
-  border-radius: 5px;
-  position: relative;
-  cursor: pointer;
-  width: 100%;
-`;
-
-const ProgressBar = styled.div`
-  height: 100%;
-  background: ${({ colors }) => colors?.primary};
-  border-radius: 5px;
-`;
-
-const ControlButton = styled.span`
-  cursor: pointer;
-  padding: 10px;
-`;
-
-const VolumeControl = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  input {
-    width: 100px;
-    height: 5px;
-  }
-`;
-
-const TranscribeButton = styled.div`
-  background-color: ${({ colors }) => colors?.light};
-  color: ${({ colors }) => colors?.primary};
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: background-color 0.3s ease;
-  text-align: center;
-  width: 80%;
-  margin: 10px auto;
-
-  &:hover {
-    background-color: ${({ colors }) => colors?.primary};
-    color: #fff;
-  }
-`;
 export default PlaybackSection;
