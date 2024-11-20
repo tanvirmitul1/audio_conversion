@@ -2,6 +2,8 @@
 /* eslint-disable react/prop-types */
 import _ from "lodash";
 import * as React from "react";
+import { FaCalendarAlt } from "react-icons/fa";
+import { FiSearch } from "react-icons/fi";
 
 const JqueryDateRangePicker = ({
   startDate,
@@ -101,8 +103,14 @@ const JqueryDateRangePicker = ({
     <div
       id="jqueryDatePicker"
       className="sp1__jquery_date_picker sp1_tasks_table_page __date-picker"
-      style={{ position: "relative" }}
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        gap: "5px",
+      }}
     >
+      <FaCalendarAlt />
       <div className="sp1__jquery_date_btn">
         <i className="fa-solid fa-calendar-days"></i>
       </div>
