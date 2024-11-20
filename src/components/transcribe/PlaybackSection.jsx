@@ -117,6 +117,8 @@ const FileInfo = styled.div`
   color: ${({ colors }) => colors.text};
   display: flex;
   justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
 
   p {
     margin: 0;

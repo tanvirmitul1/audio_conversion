@@ -47,6 +47,8 @@ const GlobalStyle = createGlobalStyle`
   ::-webkit-scrollbar-corner {
     background-color: transparent;
   }
+
+  
 `;
 
 export default GlobalStyle;

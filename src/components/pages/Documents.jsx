@@ -7,10 +7,12 @@ import {
   MdOutlinePictureAsPdf,
   MdOutlineTableChart,
 } from "react-icons/md";
-import swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-
+import { useNavigate } from "react-router-dom";
+import JqueryDateRangePicker from "../reusable/JqueryDateRangePicker";
+import { Flex } from "../../ui/GlobalStyle";
+import { FiSearch } from "react-icons/fi";
+import { IoIosClose } from "react-icons/io";
 // Dummy Data
 const dummyData = Array.from({ length: 10 }, (_, index) => ({
   id: index + 1,
@@ -27,61 +29,47 @@ const Documents = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
-  // Filtered Data
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+
   const filteredData = data.filter((doc) => {
     const matchesSearch = doc.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-    const matchesDate =
-      (!dateRange.start || new Date(doc.date) >= new Date(dateRange.start)) &&
-      (!dateRange.end || new Date(doc.date) <= new Date(dateRange.end));
-    return matchesSearch && matchesDate;
+    const withinDateRange =
+      (!startDate || new Date(doc.date) >= new Date(startDate)) &&
+      (!endDate || new Date(doc.date) <= new Date(endDate));
+    return matchesSearch && withinDateRange;
   });
-
-  // Pagination Logic
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
   const handleEdit = (id) => {
     Swal.fire({
-      title: "Are you sure?",
+      title: "Edit Document",
       text: "Do you want to edit this document?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, edit it!",
-      cancelButtonText: "No, cancel!",
-      reverseButtons: true,
-    })
-      .then((result) => {
-        if (result.isConfirmed) {
-          navigate(`/documents/${id}`);
-        }
-      })
-      .catch((error) => {
-        console.error("Error editing document:", error);
-      });
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) navigate(`/documents/${id}`);
+    });
   };
 
   const handleDelete = (id) => {
-    swal
-      .fire({
-        title: "Are you sure?",
-        text: "This action cannot be undone!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it!",
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          setData(data.filter((doc) => doc.id !== id));
-          swal.fire("Deleted!", "Your document has been deleted.", "success");
-        }
-      });
+    Swal.fire({
+      title: "Delete Document",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setData(data.filter((doc) => doc.id !== id));
+        Swal.fire("Deleted!", "The document has been deleted.", "success");
+      }
+    });
   };
 
   const handleExportFile = (id, type) => {
@@ -107,38 +95,46 @@ const Documents = () => {
 
   return (
     <Container colors={colors}>
-      <Header colors={colors}>
-        <h1>Previous Transcriptions</h1>
-        <p>View all your transcribed documents here</p>
-      </Header>
-      <Filters>
-        <input
-          type="text"
-          placeholder="Search by document name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <div>
-          <label>Start Date:</label>
-          <input
-            type="date"
-            value={dateRange.start}
-            onChange={(e) =>
-              setDateRange((prev) => ({ ...prev, start: e.target.value }))
-            }
-          />
-        </div>
-        <div>
-          <label>End Date:</label>
-          <input
-            type="date"
-            value={dateRange.end}
-            onChange={(e) =>
-              setDateRange((prev) => ({ ...prev, end: e.target.value }))
-            }
-          />
-        </div>
-      </Filters>
+      <Flex justifyContent={"space-between"}>
+        <Header colors={colors}>
+          <h1>Previous Transcriptions</h1>
+          <p>View all your transcribed documents here</p>
+        </Header>
+        <Filters colors={colors}>
+          <div className="date-filter">
+            <label>Filter by date</label>
+            <div className="date-range-container">
+              <JqueryDateRangePicker
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
+              />
+            </div>
+          </div>
+          <div className="search-container">
+            <label>Filter by name</label>
+            <div className="search-input-container">
+              <input
+                type="text"
+                placeholder="Search your docs"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <span
+                style={{
+                  cursor: "pointer",
+                  position: "absolute",
+                  right: "30px",
+                }}
+              >
+                <IoIosClose size={20} onClick={() => setSearchTerm("")} />
+              </span>
+              <FiSearch className="search-icon" />
+            </div>
+          </div>
+        </Filters>
+      </Flex>
       <TableWrapper colors={colors}>
         <table>
           <thead>
@@ -150,50 +146,63 @@ const Documents = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedData.map((doc) => (
-              <tr key={doc.id}>
-                <td>
-                  <a href={doc.link} target="_blank" rel="noopener noreferrer">
-                    {doc.name}
-                  </a>
-                </td>
-                <td>{doc.date}</td>
-                <td>
-                  <ActionButton
-                    colors={colors}
-                    onClick={() => handleEdit(doc.id)}
-                  >
-                    <MdEdit /> Edit
-                  </ActionButton>
-                  <ActionButton
-                    colors={colors}
-                    onClick={() => handleDelete(doc.id)}
-                  >
-                    <MdDelete /> Delete
-                  </ActionButton>
-                </td>
-                <td>
-                  <ActionButton
-                    colors={colors}
-                    onClick={() => handleExportFile(doc.id, "pdf")}
-                  >
-                    <MdOutlinePictureAsPdf /> PDF
-                  </ActionButton>
-                  <ActionButton
-                    colors={colors}
-                    onClick={() => handleExportFile(doc.id, "doc")}
-                  >
-                    <MdOutlineTableChart /> Word
-                  </ActionButton>
-                </td>
-              </tr>
-            ))}
+            {filteredData
+              .slice(
+                (currentPage - 1) * itemsPerPage,
+                currentPage * itemsPerPage
+              )
+              .map((doc) => (
+                <tr key={doc.id}>
+                  <td>
+                    <a
+                      href={doc.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {doc.name}
+                    </a>
+                  </td>
+                  <td>{doc.date}</td>
+                  <td>
+                    <ActionButton
+                      colors={colors}
+                      color={colors?.primary}
+                      onClick={() => handleEdit(doc.id)}
+                    >
+                      <MdEdit /> Edit
+                    </ActionButton>
+                    <ActionButton
+                      colors={colors}
+                      color={colors?.danger}
+                      onClick={() => handleDelete(doc.id)}
+                    >
+                      <MdDelete /> Delete
+                    </ActionButton>
+                  </td>
+                  <td>
+                    <ActionButton
+                      colors={colors}
+                      color={colors?.success}
+                      onClick={() => handleExportFile(doc.id, "pdf")}
+                    >
+                      <MdOutlinePictureAsPdf /> PDF
+                    </ActionButton>
+                    <ActionButton
+                      colors={colors}
+                      color={colors?.success}
+                      onClick={() => handleExportFile(doc.id, "doc")}
+                    >
+                      <MdOutlineTableChart /> Word
+                    </ActionButton>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </TableWrapper>
       <Pagination colors={colors}>
         <LimitSelector>
-          <label htmlFor="limit">Limit:</label>
+          <span>show</span>
           <select
             id="limit"
             value={itemsPerPage}
@@ -202,6 +211,7 @@ const Documents = () => {
             <option value="5">5</option>
             <option value="10">10</option>
           </select>
+          <label>row</label>
         </LimitSelector>
         <PageNavigation>
           <button
@@ -230,18 +240,18 @@ const Documents = () => {
 export default Documents;
 
 export const Container = styled.div`
-  padding: 20px;
+  padding: 0px 20px;
   background-color: ${({ colors }) => colors?.background};
   color: ${({ colors }) => colors?.text};
 `;
 
 export const Header = styled.div`
   text-align: center;
-  margin-bottom: 20px;
 
   h1 {
     font-size: 24px;
-    color: ${({ colors }) => colors?.primary};
+    font-weight: bold;
+    color: ${({ colors }) => colors?.text};
   }
 
   p {
@@ -261,7 +271,7 @@ export const TableWrapper = styled.div`
 
     th,
     td {
-      text-align: left;
+      text-align: center;
       padding: 10px;
       border: 1px solid ${({ colors }) => colors?.border};
     }
@@ -285,13 +295,12 @@ export const ActionButton = styled.button`
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background-color: ${({ colors }) => colors?.primary};
-  color: ${({ colors }) => colors?.text};
+  background-color: ${({ color }) => color};
+  color: ${({ colors }) => colors?.buttonColor};
   transition: 0.3s;
 
   &:hover {
     background-color: ${({ colors }) => colors?.text};
-    color: ${({ colors }) => colors?.primary};
   }
 `;
 
@@ -325,6 +334,9 @@ export const Pagination = styled.div`
 `;
 
 export const LimitSelector = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
   select {
     padding: 5px;
     border: 1px solid ${({ colors }) => colors?.border};
@@ -346,51 +358,85 @@ export const PageNavigation = styled.div`
 const Filters = styled.div`
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   gap: 20px;
   margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid ${({ colors }) => colors?.border};
-  border-radius: 8px;
+  padding: 15px;
+  border-radius: 10px;
   background-color: ${({ colors }) => colors?.background};
 
-  input[type="text"] {
+  .search-container {
     flex: 1;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid ${({ colors }) => colors?.border};
-    border-radius: 5px;
-    background-color: ${({ colors }) => colors?.sidebarBg};
-    color: ${({ colors }) => colors?.text};
-    outline: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 8px 12px;
     transition: border-color 0.3s;
 
-    &:focus {
+    &:focus-within {
       border-color: ${({ colors }) => colors?.primary};
+    }
+
+    input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: ${({ colors }) => colors?.text};
+      border: 1px solid ${({ colors }) => colors?.border};
+      border-radius: 50px;
+      background-color: ${({ colors }) => colors?.sidebarBg};
+
+      &::placeholder {
+        color: ${({ colors }) => colors?.placeholder};
+      }
+    }
+    .search-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .search-icon {
+      font-size: 18px;
+      color: ${({ colors }) => colors?.icon};
     }
   }
 
-  div {
+  .date-filter {
     display: flex;
     flex-direction: column;
     gap: 5px;
-
     label {
-      font-size: 14px;
       color: ${({ colors }) => colors?.text};
     }
 
-    input[type="date"] {
-      padding: 10px;
-      font-size: 14px;
+    .date-range-container {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
       border: 1px solid ${({ colors }) => colors?.border};
-      border-radius: 5px;
+      border-radius: 8px;
       background-color: ${({ colors }) => colors?.sidebarBg};
-      color: ${({ colors }) => colors?.text};
-      outline: none;
       transition: border-color 0.3s;
 
-      &:focus {
+      &:focus-within {
         border-color: ${({ colors }) => colors?.primary};
+      }
+
+      input {
+        flex: 1;
+        padding: 8px;
+        font-size: 14px;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: ${({ colors }) => colors?.text};
       }
     }
   }
