@@ -210,6 +210,8 @@ const Documents = () => {
           >
             <option value="5">5</option>
             <option value="10">10</option>
+            <option value="10">20</option>
+            <option value="10">30</option>
           </select>
           <label>row</label>
         </LimitSelector>
@@ -240,7 +242,7 @@ const Documents = () => {
 export default Documents;
 
 export const Container = styled.div`
-  padding: 0px 20px;
+  padding: 20px;
   background-color: ${({ colors }) => colors?.background};
   color: ${({ colors }) => colors?.text};
 `;
