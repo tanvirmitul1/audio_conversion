@@ -11,16 +11,10 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import JqueryDateRangePicker from "../reusable/JqueryDateRangePicker";
 import { Flex } from "../../ui/GlobalStyle";
-import { FiSearch } from "react-icons/fi";
-import { IoIosClose } from "react-icons/io";
+
+import SearchBar from "../reusable/SearchBar";
+import { dummyData } from "../../utils/dummydata";
 // Dummy Data
-const dummyData = Array.from({ length: 10 }, (_, index) => ({
-  id: index + 1,
-  name: `Document ${index + 1}`,
-  link: `https://example.com/audio${index + 1}.mp3`,
-  date: `2024-11-${index + 10}`,
-  translation: `Translation of audio file ${index + 1}`,
-}));
 
 const Documents = () => {
   const navigate = useNavigate();
@@ -112,27 +106,11 @@ const Documents = () => {
               />
             </div>
           </div>
-          <div className="search-container">
-            <label>Filter by name</label>
-            <div className="search-input-container">
-              <input
-                type="text"
-                placeholder="Search your docs"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <span
-                style={{
-                  cursor: "pointer",
-                  position: "absolute",
-                  right: "30px",
-                }}
-              >
-                <IoIosClose size={20} onClick={() => setSearchTerm("")} />
-              </span>
-              <FiSearch className="search-icon" />
-            </div>
-          </div>
+          <SearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            label={true}
+          />
         </Filters>
       </Flex>
       <TableWrapper colors={colors}>
