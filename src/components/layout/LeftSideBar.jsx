@@ -51,6 +51,15 @@ const LeftSideBar = ({ visible, width, toggleSidebar }) => {
             <IoMdSettings /> Settings
           </StyledLink>
         </SidebarItem>
+        <SidebarItem>
+          <StyledLink
+            to="/stream"
+            colors={colors}
+            className={isActive("/stream") ? "active" : ""}
+          >
+            <FaMicrophone /> stream
+          </StyledLink>
+        </SidebarItem>
       </Nav>
     </SidebarContainer>
   );

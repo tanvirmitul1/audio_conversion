@@ -12,6 +12,7 @@ import Transcribe from "./components/pages/Transcribe";
 import Documents from "./components/pages/Documents";
 import useColors from "./hooks/useColors";
 import TranscriptionDetails from "./components/Documents/TrancriptionDetails";
+import AudioStreamingComponent from "./components/pages/AudioStreamingComponent";
 
 function App() {
   const colors = useColors();
@@ -61,6 +62,16 @@ function App() {
               <AdminRoute>
                 <Layout>
                   <Setting />
+                </Layout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/stream"
+            element={
+              <AdminRoute>
+                <Layout>
+                  <AudioStreamingComponent />
                 </Layout>
               </AdminRoute>
             }
