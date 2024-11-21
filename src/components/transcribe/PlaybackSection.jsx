@@ -20,6 +20,7 @@ import {
 } from "../../ui/PlaybackSectionUI";
 // import { io } from "socket.io-client";
 import { chunkAudio } from "../../utils/audioHelpers";
+import openSocket from "socket.io-client";
 
 const PlaybackSection = ({
   audioRef,
@@ -46,22 +47,17 @@ const PlaybackSection = ({
     return `${mins} minutes ${secs} seconds`;
   };
 
-  // Initialize socket connection and set up listeners
-  // useEffect(() => {
-  //   const socket = io("https://stt.bangla.gov.bd:9394/");
+  const socket = openSocket("https://stt.bangla.gov.bd:9394/", {
+    transports: ["websocket"],
+  });
 
-  //   socket.on("result", (data) => {
-  //     console.log("Transcription Result:", data);
-  //   });
+  socket.on("result", (data) => {
+    console.log("Transcription Result:", data);
+  });
 
-  //   socket.on("result_upload", (data) => {
-  //     console.log("Transcription Upload Result:", data);
-  //   });
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, []);
+  socket.on("result_upload", (data) => {
+    console.log("Transcription Upload Result:", data);
+  });
 
   const handleTranscribe = async () => {
     if (!audioRef.current) {
@@ -78,10 +74,9 @@ const PlaybackSection = ({
         return;
       }
 
-      // const socket = io("https://stt.bangla.gov.bd:9394/");
-      // audioChunks.forEach((chunk) => {
-      //   socket.emit("audio_transmit", chunk);
-      // });
+      audioChunks.forEach((chunk) => {
+        socket.emit("audio_transmit", chunk);
+      });
 
       console.log("Chunks sent to backend:", audioChunks);
     } catch (error) {
