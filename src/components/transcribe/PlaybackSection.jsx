@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaVolumeUp } from "react-icons/fa";
 import useColors from "../../hooks/useColors";
 import { Flex, Text } from "../../ui/GlobalStyle";
@@ -18,9 +18,11 @@ import {
   TranscribeButton,
   VolumeControl,
 } from "../../ui/PlaybackSectionUI";
-// import { io } from "socket.io-client";
 import { chunkAudio } from "../../utils/audioHelpers";
-import openSocket from "socket.io-client";
+
+import io from "socket.io-client";
+import { formatDuration } from "../../utils/formatDuration";
+import { float2wavPlayback } from "../../utils/float2wavPlayback";
 
 const PlaybackSection = ({
   audioRef,
@@ -38,26 +40,43 @@ const PlaybackSection = ({
 }) => {
   const colors = useColors();
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [transcriptionResults, setTranscriptionResults] = useState("");
+  const socketRef = useRef(null);
+  const currentStreamIndex = useRef(0);
 
-  const formatDuration = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60)
-      .toString()
-      .padStart(2, "0");
-    return `${mins} minutes ${secs} seconds`;
+  const initializeWebSockets = () => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+
+    const socket = io("https://stt.bangla.gov.bd:9394/", {
+      transports: ["websocket"],
+    });
+
+    socket.on("result", (data) => {
+      if (data.chunk === "large_chunk") {
+        const words =
+          data.output?.predicted_words?.map((wordObj) => wordObj.word.trim()) ||
+          [];
+        setTranscriptionResults((prev) => prev + " " + words.join(" "));
+      }
+    });
+
+    socket.on("last_result", (data) => {
+      if (data.chunk === "large_chunk") {
+        const words =
+          data.output?.predicted_words?.map((wordObj) => wordObj.word.trim()) ||
+          [];
+        setTranscriptionResults((prev) => prev + " " + words.join(" "));
+      }
+    });
+
+    socket.on("disconnected_from_server", ({ message }) => {
+      console.warn("Disconnected from server:", message);
+    });
+
+    socketRef.current = socket;
   };
-
-  const socket = openSocket("https://stt.bangla.gov.bd:9394/", {
-    transports: ["websocket"],
-  });
-
-  socket.on("result", (data) => {
-    console.log("Transcription Result:", data);
-  });
-
-  socket.on("result_upload", (data) => {
-    console.log("Transcription Upload Result:", data);
-  });
 
   const handleTranscribe = async () => {
     if (!audioRef.current) {
@@ -67,6 +86,8 @@ const PlaybackSection = ({
 
     try {
       setIsTranscribing(true);
+      initializeWebSockets();
+
       const audioChunks = await chunkAudio(audioRef.current, 0.5);
 
       if (audioChunks.length === 0) {
@@ -74,11 +95,23 @@ const PlaybackSection = ({
         return;
       }
 
-      audioChunks.forEach((chunk) => {
-        socket.emit("audio_transmit", chunk);
-      });
+      audioChunks.forEach((chunk, index) => {
+        const audioBlob = float2wavPlayback(chunk);
+        const reader = new FileReader();
 
-      console.log("Chunks sent to backend:", audioChunks);
+        reader.onload = (e) => {
+          const base64String = e.target.result.split(",")[1];
+          if (socketRef.current) {
+            socketRef.current.emit("audio_transmit", {
+              audio: base64String,
+              index: index,
+              endOfStream: index === audioChunks.length - 1, // Mark the last chunk
+            });
+          }
+        };
+
+        reader.readAsDataURL(audioBlob);
+      });
     } catch (error) {
       console.error("Error chunking or sending audio:", error.message);
     } finally {
@@ -93,6 +126,14 @@ const PlaybackSection = ({
     }
     togglePlayback(!isPlaying);
   };
+
+  useEffect(() => {
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, []);
 
   return (
     <Card colors={colors}>
@@ -165,6 +206,11 @@ const PlaybackSection = ({
       >
         {isTranscribing ? "Transcribing..." : "Transcribe"}
       </TranscribeButton>
+
+      <div>
+        <h4>Transcription Results:</h4>
+        <p>{transcriptionResults}</p>
+      </div>
     </Card>
   );
 };
