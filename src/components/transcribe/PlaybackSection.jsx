@@ -118,6 +118,7 @@ const PlaybackSection = ({
       }
 
       audioChunks.forEach((chunk, index) => {
+        console.log({ chunk, index });
         const audioBlob = float2wavPlayback(chunk);
         const reader = new FileReader();
 
