@@ -45,38 +45,60 @@ const PlaybackSection = ({
   const currentStreamIndex = useRef(0);
 
   const initializeWebSockets = () => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
+    if (!socketRef.current) {
+      const socket = io("https://stt.bangla.gov.bd:9394/", {
+        transports: ["websocket"],
+      });
+
+      socket.on("result", (data) => {
+        console.log({ data });
+        if (data.chunk === "large_chunk") {
+          const words =
+            data.output?.predicted_words?.map((wordObj) =>
+              wordObj.word.trim()
+            ) || [];
+          setTranscriptionResults((prev) => prev + " " + words.join(" "));
+        }
+      });
+
+      socket.on("last_result", (data) => {
+        if (data.chunk === "large_chunk") {
+          const words =
+            data.output?.predicted_words?.map((wordObj) =>
+              wordObj.word.trim()
+            ) || [];
+          setTranscriptionResults((prev) => prev + " " + words.join(" "));
+        }
+      });
+
+      socket.on("disconnected_from_server", ({ message }) => {
+        console.warn("Disconnected from server:", message);
+      });
+
+      socket.on("connect", () => {
+        console.log("WebSocket connected");
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.warn("WebSocket disconnected:", reason);
+      });
+
+      socket.on("error", (error) => {
+        console.error("WebSocket error:", error);
+      });
+
+      socketRef.current = socket;
     }
-
-    const socket = io("https://stt.bangla.gov.bd:9394/", {
-      transports: ["websocket"],
-    });
-
-    socket.on("result", (data) => {
-      if (data.chunk === "large_chunk") {
-        const words =
-          data.output?.predicted_words?.map((wordObj) => wordObj.word.trim()) ||
-          [];
-        setTranscriptionResults((prev) => prev + " " + words.join(" "));
-      }
-    });
-
-    socket.on("last_result", (data) => {
-      if (data.chunk === "large_chunk") {
-        const words =
-          data.output?.predicted_words?.map((wordObj) => wordObj.word.trim()) ||
-          [];
-        setTranscriptionResults((prev) => prev + " " + words.join(" "));
-      }
-    });
-
-    socket.on("disconnected_from_server", ({ message }) => {
-      console.warn("Disconnected from server:", message);
-    });
-
-    socketRef.current = socket;
   };
+
+  useEffect(() => {
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, []);
 
   const handleTranscribe = async () => {
     if (!audioRef.current) {
