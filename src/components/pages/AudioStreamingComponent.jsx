@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import io from "socket.io-client"; // Ensure you have socket.io-client installed
 
 const Container = styled.div`
   display: flex;
@@ -36,158 +37,178 @@ const ResultCard = styled.div`
   margin-bottom: 15px;
 `;
 
-const WordRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin: 5px 0;
-`;
-
 const AudioStreamingComponent = () => {
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [results, setResults] = useState([]); // To store backend results
-  const [audioBlob, setAudioBlob] = useState(null); // To store the recorded audio blob
-  const [audioURL, setAudioURL] = useState(null); // To store audio URL for playback
-  const wsRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const indexRef = useRef(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [results, setResults] = useState([]);
+  const [light, setLight] = useState("red");
+  const scktio = useRef(null);
+  const audioContextRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+  const scriptProcessorRef = useRef(null);
+  const currentStreamIndex = useRef(0);
+
+  const initializeWebSockets = async () => {
+    if (scktio.current) {
+      scktio.current.disconnect();
+    }
+
+    const socket = io("https://stt.bangla.gov.bd:9394/", {
+      transports: ["websocket"],
+    });
+
+    socket.on("disconnected_from_server", ({ message }) => {
+      console.warn("Disconnected from server:", message);
+      stopRecording();
+    });
+
+    socket.on("result", (message) => {
+      console.log("Partial result:", message);
+      setResults((prev) => [...prev, message]);
+    });
+
+    socket.on("last_result", (message) => {
+      console.log("Final result:", message);
+      setResults((prev) => [...prev, message]);
+    });
+
+    scktio.current = socket;
+  };
+
+  const startRecording = async () => {
+    setResults([]);
+    currentStreamIndex.current = 0;
+
+    await initializeWebSockets();
+
+    if (scktio.current) {
+      scktio.current.emit("send_analytics", {
+        analytics: { device: navigator.userAgent },
+      });
+    }
+
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    const mediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+
+    const scriptProcessor = audioContext.createScriptProcessor(1024, 1, 1);
+    const source = audioContext.createMediaStreamSource(mediaStream);
+
+    source.connect(scriptProcessor);
+    scriptProcessor.connect(audioContext.destination);
+
+    scriptProcessor.onaudioprocess = (event) => {
+      const inputData = event.inputBuffer.getChannelData(0);
+
+      // Convert Float32Array to WAV Blob
+      const audioBlob = float32ToWav(inputData);
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target.result.split(",")[1];
+        if (scktio.current) {
+          scktio.current.emit("audio_transmit", {
+            audio: base64String,
+            index: currentStreamIndex.current,
+            endOfStream: false,
+          });
+          currentStreamIndex.current += 1;
+        }
+      };
+      reader.readAsDataURL(audioBlob);
+    };
+
+    audioContextRef.current = audioContext;
+    mediaStreamRef.current = mediaStream;
+    scriptProcessorRef.current = scriptProcessor;
+
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (scriptProcessorRef.current) {
+      scriptProcessorRef.current.disconnect();
+    }
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+    }
+
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+    }
+
+    if (scktio.current) {
+      scktio.current.disconnect();
+      scktio.current = null;
+    }
+
+    setIsRecording(false);
+  };
+
+  const float32ToWav = (float32Array) => {
+    const buffer = new ArrayBuffer(44 + float32Array.length * 2);
+    const view = new DataView(buffer);
+
+    // Write WAV header
+    const sampleRate = 44100;
+    const numChannels = 1;
+    const bitDepth = 16;
+
+    const writeString = (offset, string) => {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    };
+
+    writeString(0, "RIFF");
+    view.setUint32(4, 36 + float32Array.length * 2, true);
+    writeString(8, "WAVE");
+    writeString(12, "fmt ");
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * numChannels * (bitDepth / 8), true);
+    view.setUint16(32, numChannels * (bitDepth / 8), true);
+    view.setUint16(34, bitDepth, true);
+    writeString(36, "data");
+    view.setUint32(40, float32Array.length * 2, true);
+
+    // Write PCM samples
+    let offset = 44;
+    for (let i = 0; i < float32Array.length; i++, offset += 2) {
+      const sample = Math.max(-1, Math.min(1, float32Array[i]));
+      view.setInt16(
+        offset,
+        sample < 0 ? sample * 0x8000 : sample * 0x7fff,
+        true
+      );
+    }
+
+    return new Blob([view], { type: "audio/wav" });
+  };
 
   useEffect(() => {
-    // Cleanup WebSocket on component unmount
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
+      stopRecording();
     };
   }, []);
 
-  const startStreaming = async () => {
-    try {
-      // Initialize WebSocket
-      wsRef.current = new WebSocket("https://stt.bangla.gov.bd:9394/");
-
-      wsRef.current.onopen = () => {
-        console.log("WebSocket connected");
-        setIsStreaming(true);
-        indexRef.current = 0; // Reset index when streaming starts
-      };
-
-      wsRef.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.output?.predicted_words) {
-            setResults((prevResults) => [...prevResults, data]);
-          }
-        } catch (err) {
-          console.error("Error parsing message:", err);
-        }
-      };
-
-      wsRef.current.onerror = (error) =>
-        console.error("WebSocket error:", error);
-
-      wsRef.current.onclose = () => {
-        console.log("WebSocket closed");
-        setIsStreaming(false);
-      };
-
-      // Access the user's microphone
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-
-      // Listen for audio data
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const audioBase64 = reader.result.split(",")[1]; // Get base64 string
-            wsRef.current.send(
-              JSON.stringify({
-                index: indexRef.current,
-                audio: audioBase64,
-                endOfStream: false,
-              })
-            );
-            indexRef.current += 1; // Increment the index
-          };
-          reader.readAsDataURL(event.data); // Convert blob to base64
-        }
-      };
-
-      // Start recording
-      mediaRecorderRef.current.start(500); // Send data in 500ms chunks
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
-    }
-  };
-
-  const stopStreaming = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-    }
-    if (wsRef.current) {
-      wsRef.current.send(
-        JSON.stringify({
-          index: indexRef.current,
-          audio: "",
-          endOfStream: true,
-        }) // Final message
-      );
-      wsRef.current.close();
-    }
-    setIsStreaming(false);
-  };
-
-  const handleSaveAudio = (audioData) => {
-    const blob = new Blob([audioData], { type: "audio/wav" });
-    const url = URL.createObjectURL(blob);
-    setAudioBlob(blob); // Store the blob for potential download
-    setAudioURL(url); // Set the URL for playback
-  };
-
   return (
     <Container>
-      {!isStreaming && (
-        <Button onClick={startStreaming} disabled={isStreaming}>
-          Start Streaming
-        </Button>
-      )}
-      {isStreaming && (
-        <>
-          <Button onClick={stopStreaming} disabled={!isStreaming}>
-            Stop Streaming
-          </Button>
-          <h4>Recording...</h4>
-        </>
-      )}
-
-      {audioURL && (
-        <ResultsContainer>
-          <h3>Recorded Audio:</h3>
-          <audio controls>
-            <source src={audioURL} type="audio/wav" />
-            Your browser does not support the audio element.
-          </audio>
-        </ResultsContainer>
-      )}
-
+      <Button onClick={startRecording} disabled={isRecording}>
+        Start Recording
+      </Button>
+      <Button onClick={stopRecording} disabled={!isRecording}>
+        Stop Recording
+      </Button>
+      <h3>Light Status: {light}</h3>
       <ResultsContainer>
         {results.map((result, idx) => (
           <ResultCard key={idx}>
-            <h3>Chunk: {result.chunk}</h3>
-            {result.output.predicted_words.map((word, wordIdx) => (
-              <WordRow key={wordIdx}>
-                <span>
-                  Word: <strong>{word.word}</strong>
-                </span>
-                <span>
-                  Confidence:{" "}
-                  <strong>{word.is_confident ? "High" : "Low"}</strong>
-                </span>
-                <span>
-                  Timestamp: {`[${word.timestamp[0]} - ${word.timestamp[1]}]`}
-                </span>
-              </WordRow>
-            ))}
+            <p>{JSON.stringify(result)}</p>
           </ResultCard>
         ))}
       </ResultsContainer>
