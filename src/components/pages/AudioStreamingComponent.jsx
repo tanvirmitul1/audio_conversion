@@ -46,6 +46,8 @@ const AudioStreamingComponent = () => {
   const mediaStreamRef = useRef(null);
   const scriptProcessorRef = useRef(null);
   const currentStreamIndex = useRef(0);
+  const audioBuffer = useRef(null); // Buffer to accumulate audio
+  const sendingInterval = useRef(null); // Interval for sending data
 
   const initializeWebSockets = async () => {
     if (scktio.current) {
@@ -100,23 +102,38 @@ const AudioStreamingComponent = () => {
 
     scriptProcessor.onaudioprocess = (event) => {
       const inputData = event.inputBuffer.getChannelData(0);
+      const samples = Float32Array.from(inputData); // Create a copy to avoid mutation issues
 
-      // Convert Float32Array to WAV Blob
-      const audioBlob = float32ToWav(inputData);
+      // Accumulate samples into a buffer
+      audioBuffer.current = audioBuffer.current
+        ? Float32Array.from([...audioBuffer.current, ...samples])
+        : samples;
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64String = e.target.result.split(",")[1];
-        if (scktio.current) {
-          scktio.current.emit("audio_transmit", {
-            audio: base64String,
-            index: currentStreamIndex.current,
-            endOfStream: false,
-          });
-          currentStreamIndex.current += 1;
-        }
-      };
-      reader.readAsDataURL(audioBlob);
+      // Ensure audio buffer only sends data every 500ms
+      if (!sendingInterval.current) {
+        sendingInterval.current = setInterval(() => {
+          if (audioBuffer.current && audioBuffer.current.length > 0) {
+            const audioBlob = float32ToWav(audioBuffer.current);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const base64String = e.target.result.split(",")[1];
+              if (scktio.current) {
+                scktio.current.emit("audio_transmit", {
+                  audio: base64String,
+                  index: currentStreamIndex.current,
+                  endOfStream: false,
+                });
+                currentStreamIndex.current += 1;
+              }
+            };
+            reader.readAsDataURL(audioBlob);
+
+            // Clear the buffer after sending
+            audioBuffer.current = null;
+          }
+        }, 500); // 500ms interval
+      }
     };
 
     audioContextRef.current = audioContext;
@@ -127,6 +144,11 @@ const AudioStreamingComponent = () => {
   };
 
   const stopRecording = () => {
+    if (sendingInterval.current) {
+      clearInterval(sendingInterval.current);
+      sendingInterval.current = null;
+    }
+
     if (scriptProcessorRef.current) {
       scriptProcessorRef.current.disconnect();
     }
