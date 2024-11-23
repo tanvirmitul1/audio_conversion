@@ -23,6 +23,7 @@ import { chunkAudio } from "../../utils/audioHelpers";
 import io from "socket.io-client";
 import { formatDuration } from "../../utils/formatDuration";
 import { float2wavPlayback } from "../../utils/float2wavPlayback";
+import Loader from "../reusable/Loader";
 
 const PlaybackSection = ({
   audioRef,
@@ -66,7 +67,6 @@ const PlaybackSection = ({
       socket.on("result", (message) => {
         if (message.chunk === "small_chunk") {
           let textArray = [message.output];
-          // console.log("text array is :", textArray);
           let textWithGuidObj = {
             guid: message.guid,
             graphemeArray: textArray,
@@ -94,19 +94,13 @@ const PlaybackSection = ({
             index: message.output === "" ? null : message.index,
             alternatives: undefined,
             type: "large_chunk",
-            // replacingIndices: message.replacing_index,
           };
           let replacingIndices = message.index;
           let startIndex = parseInt(replacingIndices.split(":")[0]);
           let endIndex = parseInt(replacingIndices.split(":")[1]);
-          // console.log("start and end index : ", startIndex, endIndex);
-
           setTextWithGuidList((prevTextWithGuidList) => {
             const newList = [...prevTextWithGuidList];
-            // console.log("just copied the newList : ", newList);
 
-            // Find the indices of the elements to replace
-            // take only those indices which are greater or equal to startIndex and less than or equal to endIndex
             let indicesToReplace = [];
             newList.forEach((item, index) => {
               if (
@@ -120,20 +114,8 @@ const PlaybackSection = ({
               }
             });
 
-            // console.log(
-            //   "in medium.. replaing indices are.....:",
-            //   indicesToReplace
-            // );
-            // Remove the elements to replace using splice
-            // if (index !== -1) {
-            //   newList.splice(indicesToReplace[0], indicesToReplace.length);
-            // }
-
-            // console.log("before push : ", newList);
             newList.push(textWithGuidObj);
-            // console.log("afterg push : ", newList);
 
-            // Sort the list based on index
             return newList.sort(
               (a, b) =>
                 parseInt(a.index.split(":")[0]) -
@@ -319,7 +301,7 @@ const PlaybackSection = ({
         onClick={handleTranscribe}
         disabled={isTranscribing}
       >
-        {isTranscribing ? "Transcribing..." : "Transcribe"}
+        {isTranscribing ? <Loader /> : "Transcribe"}
       </TranscribeButton>
 
       <div>
@@ -328,6 +310,7 @@ const PlaybackSection = ({
         {textWithGuidList.length > 0
           ? textWithGuidList.map((textWithGuid, idx) => (
               <span key={idx}>
+                {console.log("textWithGuid", textWithGuid)}
                 {getRenderableGrapheme(textWithGuid["graphemeArray"][0])}
               </span>
             ))
@@ -340,5 +323,7 @@ const PlaybackSection = ({
 export default PlaybackSection;
 
 const getRenderableGrapheme = (grapheme) => {
+  if (!grapheme) return null;
+  console.log({ grapheme });
   return grapheme?.predicted_words?.map((word) => word.word).join(" ");
 };

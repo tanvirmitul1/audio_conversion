@@ -76,6 +76,10 @@ export const TranscribeButton = styled.div`
   text-align: center;
   width: 80%;
   margin: 10px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 
   &:hover {
     background-color: ${({ colors }) => colors?.primary};
