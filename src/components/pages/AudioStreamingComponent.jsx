@@ -16,7 +16,7 @@ import {
   Timer,
 } from "../../ui/AudioStreamUI";
 import { float32ToWav } from "../../utils/float32ToWav";
-import { FaCopy, FaMicrophone, FaStop } from "react-icons/fa";
+import { FaCopy, FaFileWord, FaMicrophone, FaStop } from "react-icons/fa";
 import useColors from "../../hooks/useColors";
 import { getRenderableGrapheme } from "../../utils/getRenderableGrapheme";
 import { formatSecToTime } from "../../utils/formatSecToTime";
@@ -24,6 +24,7 @@ import { toast } from "react-toastify";
 import Button from "../reusable/Button";
 
 import Swal from "sweetalert2";
+import { IoRemoveCircle } from "react-icons/io5";
 
 const AudioStreamingComponent = () => {
   const colors = useColors();
@@ -303,6 +304,18 @@ const AudioStreamingComponent = () => {
     });
   };
 
+  const downloadAsWord = () => {
+    const blob = new Blob([results], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "results.doc";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Container>
       <ButtonWrapper>
@@ -337,14 +350,19 @@ const AudioStreamingComponent = () => {
               }}
             >
               <CopyButton disabled={!results} onClick={handleCopy}>
-                <FaCopy />
+                <FaCopy style={{ marginRight: "5px" }} /> Copy
               </CopyButton>
               <Button
                 disabled={!results}
                 variant="danger"
                 onClick={handleClear}
               >
+                <IoRemoveCircle />
                 Clear
+              </Button>
+
+              <Button disabled={!results} onClick={downloadAsWord}>
+                <FaFileWord /> Download
               </Button>
             </div>
           </TextareaWrapper>
