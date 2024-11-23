@@ -41,23 +41,105 @@ const PlaybackSection = ({
   const colors = useColors();
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcriptionResults, setTranscriptionResults] = useState("");
+
+  let [textWithGuidList, setTextWithGuidList] = useState([]);
   const socketRef = useRef(null);
   const currentStreamIndex = useRef(0);
 
   const initializeWebSockets = () => {
+    setTextWithGuidList([]);
     if (!socketRef.current) {
       const socket = io("https://stt.bangla.gov.bd:9394/", {
         transports: ["websocket"],
       });
 
-      socket.on("result", (data) => {
-        console.log({ data });
-        if (data.chunk === "large_chunk") {
-          const words =
-            data.output?.predicted_words?.map((wordObj) =>
-              wordObj.word.trim()
-            ) || [];
-          setTranscriptionResults((prev) => prev + " " + words.join(" "));
+      // socket.on("result", (data) => {
+      //   console.log({ data });
+      //   if (data.chunk === "large_chunk") {
+      //     const words =
+      //       data.output?.predicted_words?.map((wordObj) =>
+      //         wordObj.word.trim()
+      //       ) || [];
+      //     setTranscriptionResults((prev) => prev + " " + words.join(" "));
+      //   }
+      // });
+      socket.on("result", (message) => {
+        if (message.chunk === "small_chunk") {
+          let textArray = [message.output];
+          // console.log("text array is :", textArray);
+          let textWithGuidObj = {
+            guid: message.guid,
+            graphemeArray: textArray,
+            phonemeArray: [],
+            audio: undefined,
+            index: message.output === "" ? null : message.index,
+            alternatives: undefined,
+            type: "large_chunk",
+          };
+          setTextWithGuidList((prevTextWithGuidList) => {
+            let joinedList = [...prevTextWithGuidList, textWithGuidObj];
+            return joinedList.sort(
+              (a, b) =>
+                parseInt(a.index.split(":")[0]) -
+                parseInt(b.index.split(":")[0])
+            );
+          });
+        } else {
+          let textArray = [message.output];
+          let textWithGuidObj = {
+            guid: message.guid,
+            graphemeArray: textArray,
+            phonemeArray: [],
+            audio: undefined,
+            index: message.output === "" ? null : message.index,
+            alternatives: undefined,
+            type: "large_chunk",
+            // replacingIndices: message.replacing_index,
+          };
+          let replacingIndices = message.index;
+          let startIndex = parseInt(replacingIndices.split(":")[0]);
+          let endIndex = parseInt(replacingIndices.split(":")[1]);
+          // console.log("start and end index : ", startIndex, endIndex);
+
+          setTextWithGuidList((prevTextWithGuidList) => {
+            const newList = [...prevTextWithGuidList];
+            // console.log("just copied the newList : ", newList);
+
+            // Find the indices of the elements to replace
+            // take only those indices which are greater or equal to startIndex and less than or equal to endIndex
+            let indicesToReplace = [];
+            newList.forEach((item, index) => {
+              if (
+                parseInt(item.index.split(":")[0]) >= startIndex &&
+                parseInt(item.index.split(":")[0]) <= endIndex
+              ) {
+                indicesToReplace.push(index);
+              }
+              if (index !== -1) {
+                newList.splice(indicesToReplace[0], indicesToReplace.length);
+              }
+            });
+
+            // console.log(
+            //   "in medium.. replaing indices are.....:",
+            //   indicesToReplace
+            // );
+            // Remove the elements to replace using splice
+            // if (index !== -1) {
+            //   newList.splice(indicesToReplace[0], indicesToReplace.length);
+            // }
+
+            // console.log("before push : ", newList);
+            newList.push(textWithGuidObj);
+            // console.log("afterg push : ", newList);
+
+            // Sort the list based on index
+            return newList.sort(
+              (a, b) =>
+                parseInt(a.index.split(":")[0]) -
+                parseInt(b.index.split(":")[0])
+            );
+          });
         }
       });
 
@@ -101,6 +183,7 @@ const PlaybackSection = ({
   }, []);
 
   const handleTranscribe = async () => {
+    setTextWithGuidList([]);
     if (!audioRef.current) {
       console.error("Audio reference is null or undefined.");
       return;
@@ -117,12 +200,14 @@ const PlaybackSection = ({
         return;
       }
 
-      audioChunks.forEach((chunk, index) => {
-        console.log({ chunk, index });
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+      for (let index = 0; index < audioChunks.length; index++) {
+        const chunk = audioChunks[index];
         const audioBlob = float2wavPlayback(chunk);
         const reader = new FileReader();
 
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
           const base64String = e.target.result.split(",")[1];
           if (socketRef.current) {
             socketRef.current.emit("audio_transmit", {
@@ -130,11 +215,18 @@ const PlaybackSection = ({
               index: index,
               endOfStream: index === audioChunks.length - 1, // Mark the last chunk
             });
+
+            console.log({
+              audio: base64String,
+              index: index,
+              endOfStream: index === audioChunks.length - 1,
+            });
           }
         };
 
         reader.readAsDataURL(audioBlob);
-      });
+        await delay(100);
+      }
     } catch (error) {
       console.error("Error chunking or sending audio:", error.message);
     } finally {
@@ -233,9 +325,20 @@ const PlaybackSection = ({
       <div>
         <h4>Transcription Results:</h4>
         <p>{transcriptionResults}</p>
+        {textWithGuidList.length > 0
+          ? textWithGuidList.map((textWithGuid, idx) => (
+              <span key={idx}>
+                {getRenderableGrapheme(textWithGuid["graphemeArray"][0])}
+              </span>
+            ))
+          : null}
       </div>
     </Card>
   );
 };
 
 export default PlaybackSection;
+
+const getRenderableGrapheme = (grapheme) => {
+  return grapheme?.predicted_words?.map((word) => word.word).join(" ");
+};

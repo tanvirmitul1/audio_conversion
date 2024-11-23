@@ -140,8 +140,6 @@ const Transcribe = () => {
     }
   };
 
-  console.log({ audioURL });
-
   const togglePlayback = () => {
     const audio = audioRef.current;
     if (audio) {
