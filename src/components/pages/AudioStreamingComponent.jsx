@@ -3,21 +3,27 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import io from "socket.io-client"; // Ensure you have socket.io-client installed
 import {
-  Button,
   ButtonWrapper,
   Container,
+  CopyButton,
   RecordButton,
   RecordingIndicator,
   ResultCard,
   ResultsContainer,
   StopButton,
+  Textarea,
+  TextareaWrapper,
   Timer,
 } from "../../ui/AudioStreamUI";
 import { float32ToWav } from "../../utils/float32ToWav";
-import { FaMicrophone, FaStop } from "react-icons/fa";
+import { FaCopy, FaMicrophone, FaStop } from "react-icons/fa";
 import useColors from "../../hooks/useColors";
 import { getRenderableGrapheme } from "../../utils/getRenderableGrapheme";
 import { formatSecToTime } from "../../utils/formatSecToTime";
+import { toast } from "react-toastify";
+import Button from "../reusable/Button";
+
+import Swal from "sweetalert2";
 
 const AudioStreamingComponent = () => {
   const colors = useColors();
@@ -60,9 +66,18 @@ const AudioStreamingComponent = () => {
           alternatives: undefined,
           type: "large_chunk",
         };
+
+        let replacingIndices = message.index;
+        let startIndex = parseInt(replacingIndices.split(":")[0]);
+        let endIndex = parseInt(replacingIndices.split(":")[1]);
+
         setTextWithGuidList((prevTextWithGuidList) => {
-          let joinedList = [...prevTextWithGuidList, textWithGuidObj];
-          return joinedList.sort(
+          const filteredList = prevTextWithGuidList.filter(
+            (item) =>
+              parseInt(item.index.split(":")[0]) < startIndex ||
+              parseInt(item.index.split(":")[0]) > endIndex
+          );
+          return [...filteredList, textWithGuidObj].sort(
             (a, b) =>
               parseInt(a.index.split(":")[0]) - parseInt(b.index.split(":")[0])
           );
@@ -183,6 +198,10 @@ const AudioStreamingComponent = () => {
   };
 
   const stopRecording = () => {
+    if (results.length !== 0) {
+      toast.success("Recording stopped");
+    }
+
     if (timerRef.current) clearInterval(timerRef.current);
     // Clear the sending interval
     if (sendingInterval.current) {
@@ -245,6 +264,45 @@ const AudioStreamingComponent = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const uniqueTextArray = Array.from(
+      new Set(
+        textWithGuidList.map((textWithGuid) =>
+          getRenderableGrapheme(textWithGuid["graphemeArray"][0])
+        )
+      )
+    );
+    setResults(uniqueTextArray.join(" "));
+  }, [textWithGuidList]);
+
+  const handleCopy = () => {
+    const textToCopy = results;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      toast.success("Copied to clipboard");
+    });
+  };
+
+  const handleClear = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, clear it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Cleared!", "Your text has been cleared.", "success");
+        if (scktio.current) {
+          scktio.current.emit("clear", { message: "clear" });
+        }
+        setResults("");
+        setTextWithGuidList([]);
+      }
+    });
+  };
+
   return (
     <Container>
       <ButtonWrapper>
@@ -263,14 +321,33 @@ const AudioStreamingComponent = () => {
       </RecordingIndicator>
       <ResultsContainer>
         <ResultCard colors={colors}>
-          {textWithGuidList.length > 0
-            ? textWithGuidList.map((textWithGuid, idx) => (
-                <span key={idx}>
-                  {console.log("textWithGuid", textWithGuid)}
-                  {getRenderableGrapheme(textWithGuid["graphemeArray"][0])}
-                </span>
-              ))
-            : null}
+          <TextareaWrapper colors={colors}>
+            <Textarea
+              colors={colors}
+              value={results}
+              onChange={(e) => setResults(e.target.value)}
+              placeholder="Your text will appear here..."
+            />
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <CopyButton disabled={!results} onClick={handleCopy}>
+                <FaCopy />
+              </CopyButton>
+              <Button
+                disabled={!results}
+                variant="danger"
+                onClick={handleClear}
+              >
+                Clear
+              </Button>
+            </div>
+          </TextareaWrapper>
         </ResultCard>
       </ResultsContainer>
     </Container>

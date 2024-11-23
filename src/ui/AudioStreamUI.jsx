@@ -32,6 +32,7 @@ export const ResultCard = styled.div`
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 15px;
+  background-color: ${({ colors }) => colors?.background};
 `;
 
 export const RecordingIndicator = styled.div`
@@ -42,6 +43,7 @@ export const RecordingIndicator = styled.div`
   color: ${({ isRecording, colors }) =>
     isRecording ? colors?.primary : colors?.grey};
   font-size: 18px;
+  height: 20px;
 `;
 
 export const Timer = styled.div`
@@ -74,4 +76,43 @@ export const RecordButton = styled.button`
 
 export const StopButton = styled(RecordButton)`
   background-color: ${({ colors }) => colors?.danger};
+`;
+
+export const TextareaWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+`;
+
+export const Textarea = styled.textarea`
+  width: 100%;
+  height: 300px;
+  padding: 10px;
+  border: ${({ colors }) => `1px solid ${colors?.border}`};
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  background-color: ${({ colors }) => colors?.background};
+  color: ${({ colors }) => colors?.text};
+`;
+
+export const CopyButton = styled.button`
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  &:hover {
+    background-color: #218838;
+  }
 `;

@@ -6,6 +6,8 @@ import "./index.css";
 import { Provider } from "react-redux";
 import { store } from "./redux/store.js";
 import { ErrorBoundary } from "react-error-boundary";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "react-phone-input-2/lib/style.css";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -13,6 +15,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Provider store={store}>
         <App />
       </Provider>
+      <ToastContainer />
     </ErrorBoundary>
   </React.StrictMode>
 );
