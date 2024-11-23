@@ -4,16 +4,27 @@ import styled from "styled-components";
 import io from "socket.io-client"; // Ensure you have socket.io-client installed
 import {
   Button,
+  ButtonWrapper,
   Container,
+  RecordButton,
+  RecordingIndicator,
   ResultCard,
   ResultsContainer,
+  StopButton,
+  Timer,
 } from "../../ui/AudioStreamUI";
 import { float32ToWav } from "../../utils/float32ToWav";
+import { FaMicrophone, FaStop } from "react-icons/fa";
+import useColors from "../../hooks/useColors";
+import { getRenderableGrapheme } from "../../utils/getRenderableGrapheme";
+import { formatSecToTime } from "../../utils/formatSecToTime";
 
 const AudioStreamingComponent = () => {
+  const colors = useColors();
   const [isRecording, setIsRecording] = useState(false);
   const [results, setResults] = useState(""); // Initialize as an empty string
-
+  const [textWithGuidList, setTextWithGuidList] = useState([]);
+  const [recordingTime, setRecordingTime] = useState(0);
   const [light, setLight] = useState("red");
   const scktio = useRef(null);
   const audioContextRef = useRef(null);
@@ -22,7 +33,7 @@ const AudioStreamingComponent = () => {
   const currentStreamIndex = useRef(0);
   const audioBuffer = useRef(null); // Buffer to accumulate audio
   const sendingInterval = useRef(null); // Interval for sending data
-
+  const timerRef = useRef(null);
   const initializeWebSockets = async () => {
     if (scktio.current) {
       scktio.current.disconnect();
@@ -38,28 +49,61 @@ const AudioStreamingComponent = () => {
     });
 
     socket.on("result", (message) => {
-      if (message.chunk === "large_chunk") {
-        console.log("Large chunk result:", message);
+      if (message.chunk === "small_chunk") {
+        let textArray = [message.output];
+        let textWithGuidObj = {
+          guid: message.guid,
+          graphemeArray: textArray,
+          phonemeArray: [],
+          audio: undefined,
+          index: message.output === "" ? null : message.index,
+          alternatives: undefined,
+          type: "large_chunk",
+        };
+        setTextWithGuidList((prevTextWithGuidList) => {
+          let joinedList = [...prevTextWithGuidList, textWithGuidObj];
+          return joinedList.sort(
+            (a, b) =>
+              parseInt(a.index.split(":")[0]) - parseInt(b.index.split(":")[0])
+          );
+        });
+      } else {
+        let textArray = [message.output];
+        let textWithGuidObj = {
+          guid: message.guid,
+          graphemeArray: textArray,
+          phonemeArray: [],
+          audio: undefined,
+          index: message.output === "" ? null : message.index,
+          alternatives: undefined,
+          type: "large_chunk",
+        };
+        let replacingIndices = message.index;
+        let startIndex = parseInt(replacingIndices.split(":")[0]);
+        let endIndex = parseInt(replacingIndices.split(":")[1]);
+        setTextWithGuidList((prevTextWithGuidList) => {
+          const newList = [...prevTextWithGuidList];
 
-        // Extract and clean words
-        const words =
-          message.output?.predicted_words?.map((wordObj) =>
-            wordObj.word.trim()
-          ) || [];
-        setResults((prev) => prev + " " + words.join(" "));
-      }
-    });
+          let indicesToReplace = [];
+          newList.forEach((item, index) => {
+            if (
+              parseInt(item.index.split(":")[0]) >= startIndex &&
+              parseInt(item.index.split(":")[0]) <= endIndex
+            ) {
+              indicesToReplace.push(index);
+            }
+            if (index !== -1) {
+              newList.splice(indicesToReplace[0], indicesToReplace.length);
+            }
+          });
 
-    socket.on("last_result", (message) => {
-      if (message.chunk === "large_chunk") {
-        console.log("Final large chunk result:", message);
+          newList.push(textWithGuidObj);
 
-        // Extract and clean words
-        const words =
-          message.output?.predicted_words?.map((wordObj) =>
-            wordObj.word.trim()
-          ) || [];
-        setResults((prev) => prev + " " + words.join(" "));
+          return newList.sort(
+            (a, b) =>
+              parseInt(a.index.split(":")[0]) - parseInt(b.index.split(":")[0])
+          );
+        });
       }
     });
 
@@ -67,7 +111,8 @@ const AudioStreamingComponent = () => {
   };
 
   const startRecording = async () => {
-    setResults([]);
+    setTextWithGuidList([]);
+    setRecordingTime(0);
     currentStreamIndex.current = 0;
 
     await initializeWebSockets();
@@ -126,6 +171,10 @@ const AudioStreamingComponent = () => {
       }
     };
 
+    timerRef.current = setInterval(() => {
+      setRecordingTime((prev) => prev + 1);
+    }, 1000);
+
     audioContextRef.current = audioContext;
     mediaStreamRef.current = mediaStream;
     scriptProcessorRef.current = scriptProcessor;
@@ -134,6 +183,7 @@ const AudioStreamingComponent = () => {
   };
 
   const stopRecording = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
     // Clear the sending interval
     if (sendingInterval.current) {
       clearInterval(sendingInterval.current);
@@ -197,16 +247,30 @@ const AudioStreamingComponent = () => {
 
   return (
     <Container>
-      <Button onClick={startRecording} disabled={isRecording}>
-        Start Recording
-      </Button>
-      <Button onClick={stopRecording} disabled={!isRecording}>
-        Stop Recording
-      </Button>
-      <h3>Light Status: {light}</h3>
+      <ButtonWrapper>
+        {isRecording ? (
+          <StopButton onClick={stopRecording} colors={colors}>
+            <FaStop /> Stop
+          </StopButton>
+        ) : (
+          <RecordButton onClick={startRecording} colors={colors}>
+            <FaMicrophone /> Record
+          </RecordButton>
+        )}
+      </ButtonWrapper>
+      <RecordingIndicator isRecording={isRecording} colors={colors}>
+        {isRecording && <Timer>{formatSecToTime(recordingTime)}</Timer>}
+      </RecordingIndicator>
       <ResultsContainer>
-        <ResultCard>
-          <p>{results}</p>
+        <ResultCard colors={colors}>
+          {textWithGuidList.length > 0
+            ? textWithGuidList.map((textWithGuid, idx) => (
+                <span key={idx}>
+                  {console.log("textWithGuid", textWithGuid)}
+                  {getRenderableGrapheme(textWithGuid["graphemeArray"][0])}
+                </span>
+              ))
+            : null}
         </ResultCard>
       </ResultsContainer>
     </Container>
