@@ -344,14 +344,22 @@ const AudioStreamingComponent = () => {
             <div
               style={{
                 display: "flex",
-                gap: "10px",
+                gap: "20px",
                 flexDirection: "column",
                 justifyContent: "space-between",
               }}
             >
-              <CopyButton disabled={!results} onClick={handleCopy}>
+              <Button
+                variant="success"
+                disabled={!results}
+                onClick={handleCopy}
+              >
                 <FaCopy style={{ marginRight: "5px" }} /> Copy
-              </CopyButton>
+              </Button>
+
+              <Button disabled={!results} onClick={downloadAsWord}>
+                <FaFileWord /> Download
+              </Button>
               <Button
                 disabled={!results}
                 variant="danger"
@@ -359,10 +367,6 @@ const AudioStreamingComponent = () => {
               >
                 <IoRemoveCircle />
                 Clear
-              </Button>
-
-              <Button disabled={!results} onClick={downloadAsWord}>
-                <FaFileWord /> Download
               </Button>
             </div>
           </TextareaWrapper>
