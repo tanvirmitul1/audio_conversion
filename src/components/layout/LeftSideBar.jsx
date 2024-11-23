@@ -35,6 +35,15 @@ const LeftSideBar = ({ visible, width, toggleSidebar }) => {
         </SidebarItem>
         <SidebarItem>
           <StyledLink
+            to="/stream"
+            colors={colors}
+            className={isActive("/stream") ? "active" : ""}
+          >
+            <FaMicrophone /> stream
+          </StyledLink>
+        </SidebarItem>
+        <SidebarItem>
+          <StyledLink
             to="/documents"
             colors={colors}
             className={isActive("/documents") ? "active" : ""}
@@ -49,15 +58,6 @@ const LeftSideBar = ({ visible, width, toggleSidebar }) => {
             className={isActive("/settings") ? "active" : ""}
           >
             <IoMdSettings /> Settings
-          </StyledLink>
-        </SidebarItem>
-        <SidebarItem>
-          <StyledLink
-            to="/stream"
-            colors={colors}
-            className={isActive("/stream") ? "active" : ""}
-          >
-            <FaMicrophone /> stream
           </StyledLink>
         </SidebarItem>
       </Nav>
