@@ -24,6 +24,7 @@ export const Button = styled.button`
 export const ResultsContainer = styled.div`
   margin-top: 20px;
   width: 90%;
+  height: 70vh;
 `;
 
 export const ResultCard = styled.div`
@@ -39,7 +40,7 @@ export const RecordingIndicator = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+
   color: ${({ isRecording, colors }) =>
     isRecording ? colors?.primary : colors?.grey};
   font-size: 18px;
@@ -55,7 +56,6 @@ export const Timer = styled.div`
 export const ButtonWrapper = styled.div`
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
 `;
 
 export const RecordButton = styled.button`
