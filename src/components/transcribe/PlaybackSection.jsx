@@ -50,7 +50,7 @@ const PlaybackSection = ({
   const initializeWebSockets = () => {
     setTextWithGuidList([]);
     if (!socketRef.current) {
-      const socket = io("https://stt.bangla.gov.bd:9394/", {
+      const socket = io("https://voice.bangla.gov.bd:9394/", {
         transports: ["websocket"],
       });
 
@@ -65,6 +65,7 @@ const PlaybackSection = ({
       //   }
       // });
       socket.on("result", (message) => {
+        console.log({ message });
         if (message.chunk === "small_chunk") {
           let textArray = [message.output];
           let textWithGuidObj = {
@@ -126,6 +127,7 @@ const PlaybackSection = ({
       });
 
       socket.on("last_result", (data) => {
+        console.log("last_result", { data });
         if (data.chunk === "large_chunk") {
           const words =
             data.output?.predicted_words?.map((wordObj) =>
@@ -149,6 +151,10 @@ const PlaybackSection = ({
 
       socket.on("error", (error) => {
         console.error("WebSocket error:", error);
+      });
+
+      socket.on("last_result", (message) => {
+        console.log("last_result", message);
       });
 
       socketRef.current = socket;
@@ -198,11 +204,11 @@ const PlaybackSection = ({
               endOfStream: index === audioChunks.length - 1, // Mark the last chunk
             });
 
-            console.log({
-              audio: base64String,
-              index: index,
-              endOfStream: index === audioChunks.length - 1,
-            });
+            // console.log({
+            //   audio: base64String,
+            //   index: index,
+            //   endOfStream: index === audioChunks.length - 1,
+            // });
           }
         };
 
@@ -310,7 +316,6 @@ const PlaybackSection = ({
         {textWithGuidList.length > 0
           ? textWithGuidList.map((textWithGuid, idx) => (
               <span key={idx}>
-                {console.log("textWithGuid", textWithGuid)}
                 {getRenderableGrapheme(textWithGuid["graphemeArray"][0])}
               </span>
             ))
@@ -324,6 +329,6 @@ export default PlaybackSection;
 
 const getRenderableGrapheme = (grapheme) => {
   if (!grapheme) return null;
-  console.log({ grapheme });
+
   return grapheme?.predicted_words?.map((word) => word.word).join(" ");
 };

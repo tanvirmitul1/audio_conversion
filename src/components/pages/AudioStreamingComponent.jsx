@@ -31,6 +31,7 @@ const AudioStreamingComponent = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [results, setResults] = useState(""); // Initialize as an empty string
   const [textWithGuidList, setTextWithGuidList] = useState([]);
+  // console.log({ textWithGuidList });
   const [recordingTime, setRecordingTime] = useState(0);
   const [light, setLight] = useState("red");
   const scktio = useRef(null);
@@ -56,6 +57,7 @@ const AudioStreamingComponent = () => {
     });
 
     socket.on("result", (message) => {
+      console.log({ message });
       if (message.chunk === "small_chunk") {
         let textArray = [message.output];
         let textWithGuidObj = {
@@ -169,6 +171,11 @@ const AudioStreamingComponent = () => {
             const reader = new FileReader();
             reader.onload = (e) => {
               const base64String = e.target.result.split(",")[1];
+              // console.log("initial", {
+              //   audio: base64String,
+              //   index: currentStreamIndex.current,
+              //   endOfStream: false, // Mark the final transmission
+              // });
               if (scktio.current) {
                 scktio.current.emit("audio_transmit", {
                   audio: base64String,
@@ -198,56 +205,75 @@ const AudioStreamingComponent = () => {
     setIsRecording(true);
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (results.length !== 0) {
       toast.success("Recording stopped");
     }
 
-    if (timerRef.current) clearInterval(timerRef.current);
-    // Clear the sending interval
+    // Stop the timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    // Stop periodic audio sending
     if (sendingInterval.current) {
       clearInterval(sendingInterval.current);
       sendingInterval.current = null;
     }
 
-    // Send the last buffer with endOfStream: true
-    if (audioBuffer.current && audioBuffer.current.length > 0) {
+    // Send the remaining audio buffer with endOfStream: true
+    if (
+      audioBuffer.current &&
+      audioBuffer.current.length > 0 &&
+      scktio.current
+    ) {
       const audioBlob = float32ToWav(audioBuffer.current);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64String = e.target.result.split(",")[1];
-        if (scktio.current) {
+
+      // Read the audio blob and emit it with endOfStream: true
+      await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64String = e.target.result.split(",")[1];
           scktio.current.emit("audio_transmit", {
             audio: base64String,
             index: currentStreamIndex.current,
-            endOfStream: true, // Mark the final transmission
+            endOfStream: true, // Final chunk
           });
-        }
-      };
-      reader.readAsDataURL(audioBlob);
-      audioBuffer.current = null; // Clear the buffer
+          // console.log("final", {
+          //   audio: base64String,
+          //   index: currentStreamIndex.current,
+          //   endOfStream: true, // Mark the final transmission
+          // });
+
+          resolve(); // Ensure we wait for this operation to complete
+        };
+        reader.readAsDataURL(audioBlob);
+      });
     } else if (scktio.current) {
-      // If no remaining buffer, send an empty end-of-stream message
+      // No audio left in the buffer, explicitly send endOfStream
       scktio.current.emit("audio_transmit", {
         audio: null,
         index: currentStreamIndex.current,
-        endOfStream: true,
+        endOfStream: true, // Explicitly notify endOfStream
       });
+      // console.log("final else", {
+      //   audio: null,
+      //   index: currentStreamIndex.current,
+      //   endOfStream: true, // Mark the final transmission
+      // });
     }
 
-    // Disconnect script processor
+    // Cleanup: Disconnect all audio processing components
     if (scriptProcessorRef.current) {
       scriptProcessorRef.current.disconnect();
     }
 
-    // Stop media stream tracks
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());
     }
 
-    // Close the audio context
     if (audioContextRef.current) {
-      audioContextRef.current.close();
+      await audioContextRef.current.close();
     }
 
     // Disconnect the socket
@@ -256,6 +282,7 @@ const AudioStreamingComponent = () => {
       scktio.current = null;
     }
 
+    // Reset recording state
     setIsRecording(false);
   };
 
@@ -266,13 +293,10 @@ const AudioStreamingComponent = () => {
   }, []);
 
   useEffect(() => {
-    const uniqueTextArray = Array.from(
-      new Set(
-        textWithGuidList.map((textWithGuid) =>
-          getRenderableGrapheme(textWithGuid["graphemeArray"][0])
-        )
-      )
+    const uniqueTextArray = textWithGuidList.map((textWithGuid) =>
+      getRenderableGrapheme(textWithGuid["graphemeArray"][0])
     );
+
     setResults(uniqueTextArray.join(" "));
   }, [textWithGuidList]);
 
